@@ -20,9 +20,6 @@
         android:theme="@style/Theme.Petsitternow_app"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".view.activity.GoogleSignUpActivity"
-            android:exported="false" />
-        <activity
             android:name=".view.activity.DashboardActivity"
             android:exported="false" />
         <activity
