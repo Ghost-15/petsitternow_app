@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Bienvenu dans notre Plateform"
+        android:text="Bienvenu a petsitternow"
         android:layout_margin="50dp"
         android:textSize="40sp"
         android:textStyle="bold"

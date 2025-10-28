@@ -21,7 +21,7 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var etPassword: EditText
     private lateinit var btnSignIn: Button
     private lateinit var tvForgotPassword: TextView
-    private lateinit var googleSignInButton: LinearLayout
+    private lateinit var signInButton: LinearLayout
 
     private lateinit var auth: FirebaseAuth
 
@@ -36,14 +36,14 @@ class SignInActivity : AppCompatActivity() {
         etPassword = findViewById(R.id.etPassword)
         btnSignIn = findViewById(R.id.btnSignIn)
         tvForgotPassword = findViewById(R.id.tvForgotPassword)
-        googleSignInButton = findViewById(R.id.btnGoogleSignIn)
+        signInButton = findViewById(R.id.btnCreateAccount)
 
         btnSignIn.setOnClickListener {
             loginUser()
         }
 
-        googleSignInButton.setOnClickListener {
-            val intent = Intent(this, GoogleSignUpActivity::class.java)
+        signInButton.setOnClickListener {
+            val intent = Intent(this, SignUpActivity::class.java)
             startActivity(intent)
             finish()
         }
