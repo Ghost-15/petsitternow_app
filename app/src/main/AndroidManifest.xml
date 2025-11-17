@@ -20,16 +20,16 @@
         android:theme="@style/Theme.Petsitternow_app"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".DashboardActivity"
+            android:name=".view.activity.DashboardActivity"
             android:exported="false" />
         <activity
-            android:name=".SignInActivity"
+            android:name=".view.activity.SignInActivity"
             android:exported="false" />
         <activity
-            android:name=".SignUpActivity"
+            android:name=".view.activity.SignUpActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".view.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
