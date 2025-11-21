@@ -1,0 +1,1 @@
+This directory will contain the UI layer (activities, fragments, ViewModels).
