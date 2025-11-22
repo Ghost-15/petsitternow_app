@@ -1,0 +1,1 @@
+This directory will contain the data models and use cases.
