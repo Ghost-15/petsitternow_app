@@ -1,5 +1,7 @@
 package www.com.petsitternow_app.ui.auth
 
+
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -7,6 +9,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import www.com.petsitternow_app.domain.repository.AuthRepository
 import javax.inject.Inject
 
@@ -42,4 +46,26 @@ class SignInViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
     }
+
+    fun signInGoogle(idToken: String) {
+        viewModelScope.launch {
+            repository.firebaseSignInWithGoogle(idToken)
+                .onStart {
+                    _signInState.value = SignInState(isLoading = true)
+                }
+                .collect { result ->
+                    result.fold(
+                        onSuccess = {
+                            _signInState.value = SignInState(isSignInSuccess = true)
+                        },
+                        onFailure = {
+                            _signInState.value = SignInState(error = it.message)
+                            Log.d("Auth", "Exception2 ${it.message}")
+                        }
+                    )
+                }
+        }
+    }
+
+
 }

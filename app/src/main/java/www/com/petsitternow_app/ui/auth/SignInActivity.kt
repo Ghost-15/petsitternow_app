@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -17,40 +18,63 @@ import www.com.petsitternow_app.ui.dashboard.DashboardActivity
 class SignInActivity : AppCompatActivity() {
 
     private val viewModel: SignInViewModel by viewModels()
-
+    private lateinit var googleAuthClient: GoogleAuthClient
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnSignIn: Button
+    private lateinit var googleSignIn: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
 
+        googleAuthClient = GoogleAuthClient(this)
+
         etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         btnSignIn = findViewById(R.id.btnSignIn)
+        googleSignIn = findViewById(R.id.btnGoogleSignIn)
 
+        // Login avec email/password
         btnSignIn.setOnClickListener {
-            val email = etEmail.text.toString().trim()
-            val password = etPassword.text.toString().trim()
-            viewModel.login(email, password)
+            viewModel.login(
+                etEmail.text.toString().trim(),
+                etPassword.text.toString().trim()
+            )
         }
 
-        // Observer l'état de la connexion
+        // Login via Google
+        googleSignIn.setOnClickListener {
+            lifecycleScope.launch {
+                val idToken = googleAuthClient.signIn()
+                Toast.makeText(this@SignInActivity, "TOKEN = $idToken", Toast.LENGTH_LONG).show()
+                if (idToken != null) {
+                    viewModel.signInGoogle(idToken)
+                } else {
+                    Toast.makeText(this@SignInActivity, "Google Sign-In Failed !", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
+
+        observeAuthState()
+    }
+
+    private fun observeAuthState() {
         lifecycleScope.launch {
             viewModel.signInState.collect { state ->
-                if (state.isLoading) {
-                    // Afficher une ProgressBar si vous en avez une
-                    Toast.makeText(this@SignInActivity, "Chargement...", Toast.LENGTH_SHORT).show()
-                }
-                state.error?.let {
-                    Toast.makeText(this@SignInActivity, it, Toast.LENGTH_LONG).show()
-                }
-                if (state.isSignInSuccess) {
-                    Toast.makeText(this@SignInActivity, "Connexion réussie !", Toast.LENGTH_LONG).show()
-                    val intent = Intent(this@SignInActivity, DashboardActivity::class.java)
-                    startActivity(intent)
-                    finish()
+                when {
+                    state.isLoading ->
+                        Toast.makeText(this@SignInActivity, "Chargement...", Toast.LENGTH_SHORT).show()
+
+                    state.error != null ->
+                        Toast.makeText(this@SignInActivity, state.error, Toast.LENGTH_LONG).show()
+
+                    state.isSignInSuccess -> {
+                        Toast.makeText(this@SignInActivity, "Connexion réussie !", Toast.LENGTH_LONG).show()
+                        startActivity(Intent(this@SignInActivity, DashboardActivity::class.java))
+                        finish()
+                    }
                 }
             }
         }
