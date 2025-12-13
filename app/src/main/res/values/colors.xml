@@ -2,5 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="blueFonce">#0066CC</color>
+    <color name="blueUPfonce">#0066CC</color>
+    <color name="underline">#A0A0A0</color>
+    <color name="transparent">#0000ffff</color>
 </resources>

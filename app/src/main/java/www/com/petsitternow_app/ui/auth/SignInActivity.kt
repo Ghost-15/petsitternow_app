@@ -23,6 +23,7 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var etPassword: EditText
     private lateinit var btnSignIn: Button
     private lateinit var googleSignIn: LinearLayout
+    private lateinit var btnSignUp: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +35,7 @@ class SignInActivity : AppCompatActivity() {
         etPassword = findViewById(R.id.etPassword)
         btnSignIn = findViewById(R.id.btnSignIn)
         googleSignIn = findViewById(R.id.btnGoogleSignIn)
+        btnSignUp = findViewById(R.id.btnCreateAccount)
 
         // Login avec email/password
         btnSignIn.setOnClickListener {
@@ -56,6 +58,13 @@ class SignInActivity : AppCompatActivity() {
             }
         }
 
+
+        // Creer un compte
+        btnSignUp.setOnClickListener {
+            Toast.makeText(this@SignInActivity, "Creer un compte", Toast.LENGTH_LONG).show()
+            startActivity(Intent(this@SignInActivity, SignUpActivity::class.java))
+            finish()
+        }
 
         observeAuthState()
     }

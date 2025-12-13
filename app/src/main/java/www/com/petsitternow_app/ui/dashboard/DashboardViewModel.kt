@@ -6,11 +6,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import www.com.petsitternow_app.R
 import www.com.petsitternow_app.domain.repository.AuthRepository
 import javax.inject.Inject
 
 sealed class DashboardNavigation {
-    object GoToSignIn : DashboardNavigation()
 }
 
 @HiltViewModel
@@ -18,13 +18,14 @@ class DashboardViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
 
-    private val _navigationEvent = MutableSharedFlow<DashboardNavigation>()
-    val navigationEvent = _navigationEvent.asSharedFlow()
+    // Graphs à charger dans la bottom navigation
+    val navGraphIds = listOf(
+        R.navigation.nav_dashboard,
+        R.navigation.nav_message,
+        R.navigation.nav_setting
+    )
 
-    fun logout() {
-        viewModelScope.launch {
-            repository.logout()
-            _navigationEvent.emit(DashboardNavigation.GoToSignIn)
-        }
-    }
+    // Item sélectionné par défaut
+    val defaultSelectedItemId = R.id.nav_dashboard
+
 }
