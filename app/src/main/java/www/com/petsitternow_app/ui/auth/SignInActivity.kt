@@ -1,13 +1,17 @@
 package www.com.petsitternow_app.ui.auth
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -25,6 +29,12 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var googleSignIn: LinearLayout
     private lateinit var btnSignUp: LinearLayout
 
+    private val addAccountLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            Toast.makeText(this, "Compte ajouté, veuillez réessayer de vous connecter avec Google.", Toast.LENGTH_LONG).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
@@ -37,55 +47,24 @@ class SignInActivity : AppCompatActivity() {
         googleSignIn = findViewById(R.id.btnGoogleSignIn)
         btnSignUp = findViewById(R.id.btnCreateAccount)
 
-        // Login avec email/password
-        btnSignIn.setOnClickListener {
-            viewModel.login(
-                etEmail.text.toString().trim(),
-                etPassword.text.toString().trim()
-            )
-        }
-
-        // Login via Google
         googleSignIn.setOnClickListener {
             lifecycleScope.launch {
-                val idToken = googleAuthClient.signIn()
-                Toast.makeText(this@SignInActivity, "TOKEN = $idToken", Toast.LENGTH_LONG).show()
-                if (idToken != null) {
-                    viewModel.signInGoogle(idToken)
-                } else {
-                    Toast.makeText(this@SignInActivity, "Google Sign-In Failed !", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-
-
-        // Creer un compte
-        btnSignUp.setOnClickListener {
-            Toast.makeText(this@SignInActivity, "Creer un compte", Toast.LENGTH_LONG).show()
-            startActivity(Intent(this@SignInActivity, SignUpActivity::class.java))
-            finish()
-        }
-
-        observeAuthState()
-    }
-
-    private fun observeAuthState() {
-        lifecycleScope.launch {
-            viewModel.signInState.collect { state ->
-                when {
-                    state.isLoading ->
-                        Toast.makeText(this@SignInActivity, "Chargement...", Toast.LENGTH_SHORT).show()
-
-                    state.error != null ->
-                        Toast.makeText(this@SignInActivity, state.error, Toast.LENGTH_LONG).show()
-
-                    state.isSignInSuccess -> {
-                        Toast.makeText(this@SignInActivity, "Connexion réussie !", Toast.LENGTH_LONG).show()
-                        startActivity(Intent(this@SignInActivity, DashboardActivity::class.java))
-                        finish()
+                try {
+                    val idToken = googleAuthClient.signIn()
+                    if (idToken != null) {
+                        viewModel.signInGoogle(idToken)
                     }
+                } catch (e: NoCredentialException) {
+                    Toast.makeText(this@SignInActivity, "Aucun compte Google trouvé. Veuillez en ajouter un.", Toast.LENGTH_LONG).show()
+                    val intent = Intent(Settings.ACTION_ADD_ACCOUNT)
+                    intent.putExtra(Settings.EXTRA_ACCOUNT_TYPES, arrayOf("com.google"))
+                    addAccountLauncher.launch(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(this@SignInActivity, "Une erreur inattendue est survenue: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
+
     }
+
 }

@@ -8,6 +8,8 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import java.security.SecureRandom
+import java.util.UUID
 
 class GoogleAuthClient(
     private val context: Context,
@@ -22,27 +24,32 @@ class GoogleAuthClient(
 
             if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                 val googleCred = GoogleIdTokenCredential.createFrom(credential.data)
-                googleCred.idToken  // On retourne le vrai Google ID token
+                googleCred.idToken
             } else {
+                Log.e("Auth", "Unexpected credential type: ${credential::class.java.name}")
                 null
             }
 
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.d("Auth", "Exception1 ${e.message}")
-            null
+            Log.e("Auth", "Google Sign-In failed with exception: ${e.message}")
+            throw e
         }
     }
 
     private suspend fun buildCredentialRequest(): GetCredentialResponse {
+        val nonce = UUID.randomUUID().toString()
+
+        val googleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false)
+            .setServerClientId("756871375939-qq54gsfj3a6ch4um7f45p7qhkfum0bkp.apps.googleusercontent.com")
+            .setNonce(nonce)
+            .setAutoSelectEnabled(true)
+            .build()
+
         val request = GetCredentialRequest.Builder()
-            .addCredentialOption(
-                GetGoogleIdOption.Builder()
-                    .setServerClientId("756871375939-qq54gsfj3a6ch4um7f45p7qhkfum0bkp.apps.googleusercontent.com")
-                    .setFilterByAuthorizedAccounts(false)
-                    .setAutoSelectEnabled(false)
-                    .build()
-            ).build()
+            .addCredentialOption(googleIdOption)
+            .build()
 
         return credentialManager.getCredential(
             request = request,
