@@ -2,14 +2,14 @@ package www.com.petsitternow_app.view.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
@@ -35,16 +35,18 @@ class SettingFragment : Fragment(R.layout.fragment_setting) {
     }
 
     private fun observeNavigation() {
-        lifecycleScope.launch {
-            viewModel.navigationEvent.collect { navigation ->
-                when (navigation) {
-                    SettingNavigation.GoToSignIn -> {
-                        Toast.makeText(requireContext(), "Déconnexion réussie", Toast.LENGTH_SHORT).show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.navigationEvent.collect { navigation ->
+                    when (navigation) {
+                        SettingNavigation.GoToSignIn -> {
+                            Toast.makeText(requireContext(), "Déconnexion réussie", Toast.LENGTH_SHORT).show()
 
-                        val intent = Intent(requireContext(), SignInActivity::class.java)
-                        intent.flags =
-                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
+                            val intent = Intent(requireContext(), SignInActivity::class.java)
+                            intent.flags =
+                                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            startActivity(intent)
+                        }
                     }
                 }
             }
