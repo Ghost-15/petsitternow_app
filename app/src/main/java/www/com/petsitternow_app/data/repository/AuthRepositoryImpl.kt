@@ -1,6 +1,5 @@
 package www.com.petsitternow_app.data.repository
 
-
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -30,7 +29,7 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun firebaseSignInWithGoogle(idToken: String): Flow<Result<AuthResult>> = flow {
+    override fun signInWithGoogle(idToken: String): Flow<Result<AuthResult>> = flow {
         try {
             val credential = GoogleAuthProvider.getCredential(idToken, null)
             val result = auth.signInWithCredential(credential).await()
