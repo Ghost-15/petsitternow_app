@@ -12,7 +12,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.exceptions.NoCredentialException
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
@@ -29,8 +31,8 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var googleSignIn: LinearLayout
     private lateinit var btnSignUp: LinearLayout
 
-    private val addAccountLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
+    private val addAccountLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK) {
             Toast.makeText(this, "Compte ajouté, veuillez réessayer de vous connecter avec Google.", Toast.LENGTH_LONG).show()
         }
     }
@@ -47,17 +49,20 @@ class SignInActivity : AppCompatActivity() {
         googleSignIn = findViewById(R.id.btnGoogleSignIn)
         btnSignUp = findViewById(R.id.btnCreateAccount)
 
+        btnSignIn.setOnClickListener {
+            viewModel.login(etEmail.text.toString().trim(), etPassword.text.toString().trim())
+        }
+
         googleSignIn.setOnClickListener {
             lifecycleScope.launch {
                 try {
                     val idToken = googleAuthClient.signIn()
-                    if (idToken != null) {
-                        viewModel.signInGoogle(idToken)
-                    }
+                    idToken?.let { viewModel.signInGoogle(it) }
                 } catch (e: NoCredentialException) {
                     Toast.makeText(this@SignInActivity, "Aucun compte Google trouvé. Veuillez en ajouter un.", Toast.LENGTH_LONG).show()
-                    val intent = Intent(Settings.ACTION_ADD_ACCOUNT)
-                    intent.putExtra(Settings.EXTRA_ACCOUNT_TYPES, arrayOf("com.google"))
+                    val intent = Intent(Settings.ACTION_ADD_ACCOUNT).apply {
+                        putExtra(Settings.EXTRA_ACCOUNT_TYPES, arrayOf("com.google"))
+                    }
                     addAccountLauncher.launch(intent)
                 } catch (e: Exception) {
                     Toast.makeText(this@SignInActivity, "Une erreur inattendue est survenue: ${e.message}", Toast.LENGTH_LONG).show()
@@ -65,6 +70,29 @@ class SignInActivity : AppCompatActivity() {
             }
         }
 
+        btnSignUp.setOnClickListener {
+            startActivity(Intent(this, SignUpActivity::class.java))
+        }
+
+        observeAuthState()
     }
 
+    private fun observeAuthState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.signInState.collect { state ->
+                    if (state.isLoading) {
+                    }
+                    state.error?.let {
+                        Toast.makeText(this@SignInActivity, it, Toast.LENGTH_LONG).show()
+                    }
+                    if (state.isSignInSuccess) {
+                        Toast.makeText(this@SignInActivity, "Connexion réussie !", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this@SignInActivity, DashboardActivity::class.java))
+                        finish()
+                    }
+                }
+            }
+        }
+    }
 }
