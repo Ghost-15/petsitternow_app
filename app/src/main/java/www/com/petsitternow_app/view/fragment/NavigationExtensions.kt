@@ -107,6 +107,28 @@ fun BottomNavigationView.setupWithNavController(
                         .addToBackStack(firstFragmentTag)
                         .setReorderingAllowed(true)
                         .commit()
+                } else {
+                    fragmentManager.beginTransaction()
+                        .setCustomAnimations(
+                            R.anim.slide_in_left,
+                            R.anim.slide_out_right,
+                            R.anim.slide_in_right,
+                            R.anim.slide_out_left)
+                        .apply {
+                            graphIdToTagMap.forEach { _, fragmentTagIter ->
+                                if (fragmentTagIter != newlySelectedItemTag) {
+                                    fragmentManager.findFragmentByTag(fragmentTagIter)?.let {
+                                        detach(it)
+                                    }
+                                }
+                            }
+                            fragmentManager.findFragmentByTag(firstFragmentTag)?.let {
+                                attach(it)
+                                setPrimaryNavigationFragment(it as NavHostFragment)
+                            }
+                        }
+                        .setReorderingAllowed(true)
+                        .commit()
                 }
                 selectedItemTag = newlySelectedItemTag
                 isOnFirstFragment = selectedItemTag == firstFragmentTag
