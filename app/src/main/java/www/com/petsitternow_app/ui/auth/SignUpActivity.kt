@@ -7,7 +7,9 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
@@ -37,18 +39,19 @@ class SignUpActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.signUpState.collect { state ->
-                if (state.isLoading) {
-                    Toast.makeText(this@SignUpActivity, "Chargement...", Toast.LENGTH_SHORT).show()
-                }
-                state.error?.let {
-                    Toast.makeText(this@SignUpActivity, it, Toast.LENGTH_LONG).show()
-                }
-                if (state.isSignUpSuccess) {
-                    Toast.makeText(this@SignUpActivity, "Inscription réussie !", Toast.LENGTH_LONG).show()
-                    val intent = Intent(this@SignUpActivity, DashboardActivity::class.java)
-                    startActivity(intent)
-                    finish()
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.signUpState.collect { state ->
+                    if (state.isLoading) {
+                        // Gérer l'état de chargement si nécessaire
+                    }
+                    state.error?.let {
+                        Toast.makeText(this@SignUpActivity, it, Toast.LENGTH_LONG).show()
+                    }
+                    if (state.isSignUpSuccess) {
+                        Toast.makeText(this@SignUpActivity, "Inscription réussie !", Toast.LENGTH_LONG).show()
+                        startActivity(Intent(this@SignUpActivity, DashboardActivity::class.java))
+                        finish()
+                    }
                 }
             }
         }

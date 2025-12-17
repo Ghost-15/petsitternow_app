@@ -45,14 +45,17 @@ dependencies {
     implementation("javax.inject:javax.inject:1")
 
     // Hilt
-    implementation("com.google.dagger:hilt-android:2.51")
-    kapt("com.google.dagger:hilt-compiler:2.51")
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    kapt("com.google.dagger:hilt-compiler:2.51.1")
 
     // ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
     implementation("androidx.activity:activity-ktx:1.9.1")
 
 
+    implementation(libs.googleid)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

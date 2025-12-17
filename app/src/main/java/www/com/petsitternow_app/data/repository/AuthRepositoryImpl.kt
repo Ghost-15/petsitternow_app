@@ -2,6 +2,7 @@ package www.com.petsitternow_app.data.repository
 
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
@@ -23,6 +24,16 @@ class AuthRepositoryImpl @Inject constructor(
     override fun createUser(email: String, password: String): Flow<Result<AuthResult>> = flow {
         try {
             emit(Result.success(auth.createUserWithEmailAndPassword(email, password).await()))
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }
+
+    override fun signInWithGoogle(idToken: String): Flow<Result<AuthResult>> = flow {
+        try {
+            val credential = GoogleAuthProvider.getCredential(idToken, null)
+            val result = auth.signInWithCredential(credential).await()
+            emit(Result.success(result))
         } catch (e: Exception) {
             emit(Result.failure(e))
         }

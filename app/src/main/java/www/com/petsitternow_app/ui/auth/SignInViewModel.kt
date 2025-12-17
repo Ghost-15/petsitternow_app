@@ -5,12 +5,13 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import www.com.petsitternow_app.domain.repository.AuthRepository
 import javax.inject.Inject
 
-// 1. Définir l'état de l'interface utilisateur
+
 data class SignInState(
     val isLoading: Boolean = false,
     val isSignInSuccess: Boolean = false,
@@ -22,23 +23,25 @@ class SignInViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
 
-    // 2. Exposer l'état à la vue
     private val _signInState = MutableStateFlow(SignInState())
-    val signInState: StateFlow<SignInState> = _signInState
+    val signInState: StateFlow<SignInState> = _signInState.asStateFlow()
 
-    // 3. Fonction pour gérer la logique de connexion
     fun login(email: String, password: String) {
         repository.loginUser(email, password).onEach { result ->
-            _signInState.value = when {
-                result.isSuccess -> {
-                    SignInState(isSignInSuccess = true)
-                }
-                result.isFailure -> {
-                    SignInState(error = result.exceptionOrNull()?.message ?: "An unknown error occurred")
-                }
-                else -> {
-                     SignInState(isLoading = true) // Considérer un état de chargement initial
-                }
+            result.onSuccess {
+                _signInState.value = SignInState(isSignInSuccess = true)
+            }.onFailure {
+                _signInState.value = SignInState(error = it.message ?: "An unknown error occurred")
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun signInGoogle(idToken: String) {
+        repository.signInWithGoogle(idToken).onEach { result ->
+            result.onSuccess {
+                _signInState.value = SignInState(isSignInSuccess = true)
+            }.onFailure {
+                _signInState.value = SignInState(error = it.message ?: "An unknown error occurred")
             }
         }.launchIn(viewModelScope)
     }
