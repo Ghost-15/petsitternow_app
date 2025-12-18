@@ -18,14 +18,13 @@ class DashboardViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
 
-    // Graphs à charger dans la bottom navigation
     val navGraphIds = listOf(
         R.navigation.nav_dashboard,
+        R.navigation.nav_onboarding,
         R.navigation.nav_message,
         R.navigation.nav_setting
     )
 
-    // Item sélectionné par défaut
     val defaultSelectedItemId = R.id.nav_dashboard
 
 }
