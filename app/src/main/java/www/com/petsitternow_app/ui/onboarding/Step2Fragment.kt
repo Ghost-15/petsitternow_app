@@ -82,7 +82,7 @@ class Step2Fragment : Fragment(R.layout.fragment_onboarding_step2) {
                 viewModel.state.collect { state ->
                     updateSelection(state.userType)
 
-                    if (state.error != null && state.currentStep == 2) {
+                    if (state.error != null) {
                         tvError.text = state.error
                         tvError.visibility = View.VISIBLE
                     } else {

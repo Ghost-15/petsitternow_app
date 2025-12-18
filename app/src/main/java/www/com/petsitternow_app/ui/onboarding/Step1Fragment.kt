@@ -156,7 +156,7 @@ class Step1Fragment : Fragment(R.layout.fragment_onboarding_step1) {
                     }
 
                     // Affichage erreur
-                    if (state.error != null && state.currentStep == 1) {
+                    if (state.error != null) {
                         tvError.text = state.error
                         tvError.visibility = View.VISIBLE
                     } else {

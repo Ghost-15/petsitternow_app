@@ -1,63 +1,59 @@
 package www.com.petsitternow_app.ui.onboarding
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import www.com.petsitternow_app.domain.repository.UserRepository
 import javax.inject.Inject
 
-/**
- * États possibles pour le genre
- */
+
 enum class Gender(val value: String, val label: String) {
     HOMME("homme", "Homme"),
     FEMME("femme", "Femme"),
     AUTRE("autre", "Autre")
 }
 
-/**
- * États possibles pour le type d'utilisateur
- */
+
 enum class UserType(val value: String) {
     OWNER("owner"),
     PETSITTER("petsitter")
 }
 
-/**
- * État complet du formulaire d'onboarding
- */
+
 data class OnboardingState(
-    // Step 1 - Informations personnelles
     val firstName: String = "",
     val lastName: String = "",
     val phone: String = "",
     val gender: Gender? = null,
     val dateOfBirth: String = "",
     
-    // Step 2 - Type d'utilisateur
     val userType: UserType? = null,
     
-    // Step 3 - Adresse
     val address: String = "",
     val city: String = "",
     val codePostal: String = "",
     
-    // UI State
-    val currentStep: Int = 1,
     val error: String? = null,
     val isLoading: Boolean = false,
     val isCompleted: Boolean = false
 )
 
 @HiltViewModel
-class OnboardingViewModel @Inject constructor() : ViewModel() {
+class OnboardingViewModel @Inject constructor(
+    private val userRepository: UserRepository,
+    private val auth: FirebaseAuth
+) : ViewModel() {
 
     private val _state = MutableStateFlow(OnboardingState())
     val state: StateFlow<OnboardingState> = _state.asStateFlow()
 
-    // ==================== Step 1 ====================
-    
+
     fun updateFirstName(value: String) {
         _state.value = _state.value.copy(firstName = value, error = null)
     }
@@ -67,7 +63,6 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
     }
 
     fun updatePhone(value: String) {
-        // Garde seulement les chiffres, max 10
         val sanitized = value.filter { it.isDigit() }.take(10)
         _state.value = _state.value.copy(phone = sanitized, error = null)
     }
@@ -95,7 +90,6 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
         return error == null
     }
 
-    // ==================== Step 2 ====================
 
     fun updateUserType(userType: UserType) {
         _state.value = _state.value.copy(userType = userType, error = null)
@@ -110,7 +104,6 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
         return error == null
     }
 
-    // ==================== Step 3 ====================
 
     fun updateAddress(value: String) {
         _state.value = _state.value.copy(address = value, error = null)
@@ -138,29 +131,43 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
         return error == null
     }
 
-    // ==================== Navigation ====================
-
-    fun goToStep(step: Int) {
-        _state.value = _state.value.copy(currentStep = step, error = null)
-    }
-
-    fun clearError() {
-        _state.value = _state.value.copy(error = null)
-    }
-
-    // ==================== Submit ====================
 
     fun submitOnboarding() {
         if (!validateStep3()) return
-        
-        _state.value = _state.value.copy(isLoading = true)
-        
-        // TODO: Appeler le repository pour sauvegarder les données
-        // Pour l'instant, on simule le succès
-        _state.value = _state.value.copy(
-            isLoading = false,
-            isCompleted = true
-        )
+
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            _state.value = _state.value.copy(error = "Utilisateur non connecté")
+            return
+        }
+
+        val s = _state.value
+        _state.value = s.copy(isLoading = true, error = null)
+
+        userRepository.saveOnboardingData(
+            userId = userId,
+            firstName = s.firstName,
+            lastName = s.lastName,
+            phone = s.phone,
+            gender = s.gender?.value ?: "",
+            dateOfBirth = s.dateOfBirth,
+            userType = s.userType?.value ?: "",
+            address = s.address,
+            city = s.city,
+            codePostal = s.codePostal
+        ).onEach { result ->
+            result.onSuccess {
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    isCompleted = true
+                )
+            }.onFailure { e ->
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Erreur lors de la sauvegarde"
+                )
+            }
+        }.launchIn(viewModelScope)
     }
 }
 
