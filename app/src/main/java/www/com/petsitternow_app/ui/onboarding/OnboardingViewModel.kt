@@ -3,6 +3,7 @@ package www.com.petsitternow_app.ui.onboarding
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.functions.FirebaseFunctions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -157,10 +158,30 @@ class OnboardingViewModel @Inject constructor(
             codePostal = s.codePostal
         ).onEach { result ->
             result.onSuccess {
-                _state.value = _state.value.copy(
-                    isLoading = false,
-                    isCompleted = true
-                )
+                auth.currentUser?.getIdToken(true)?.addOnSuccessListener {
+                    val data = hashMapOf("userType" to (s.userType?.value ?: ""))
+                    FirebaseFunctions.getInstance()
+                        .getHttpsCallable("completeOnboarding")
+                        .call(data)
+                        .addOnSuccessListener {
+                            auth.currentUser?.getIdToken(true)
+                            _state.value = _state.value.copy(
+                                isLoading = false,
+                                isCompleted = true
+                            )
+                        }
+                        .addOnFailureListener { e ->
+                            _state.value = _state.value.copy(
+                                isLoading = false,
+                                error = e.message ?: "Erreur lors de la mise à jour des permissions"
+                            )
+                        }
+                }?.addOnFailureListener { e ->
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        error = e.message ?: "Erreur d'authentification"
+                    )
+                }
             }.onFailure { e ->
                 _state.value = _state.value.copy(
                     isLoading = false,
