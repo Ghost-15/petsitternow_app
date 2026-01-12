@@ -20,6 +20,7 @@ class DashboardViewModel @Inject constructor(
 
     val navGraphIds = listOf(
         R.navigation.nav_dashboard,
+        R.navigation.nav_profile,
         R.navigation.nav_onboarding,
         R.navigation.nav_message,
         R.navigation.nav_setting

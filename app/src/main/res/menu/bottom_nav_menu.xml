@@ -7,8 +7,13 @@
         android:icon="@drawable/ic_home" />
 
     <item
-        android:id="@+id/nav_onboarding"
+        android:id="@+id/nav_profile"
         android:title="Profil"
+        android:icon="@drawable/ic_person" />
+
+    <item
+        android:id="@+id/nav_onboarding"
+        android:title="Onboarding"
         android:icon="@drawable/ic_person" />
 
     <item
