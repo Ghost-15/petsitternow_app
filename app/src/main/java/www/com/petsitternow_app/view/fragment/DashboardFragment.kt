@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -104,6 +105,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     private fun setupOwnerView(view: View) {
         val btnAddPet = view.findViewById<MaterialButton>(R.id.btnAddPet)
         btnAddPet?.setOnClickListener {
+            findNavController().navigate(R.id.action_dashboard_to_addPet)
         }
     }
 }

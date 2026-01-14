@@ -9,6 +9,15 @@
         android:id="@+id/dashboardFragment"
         android:name="www.com.petsitternow_app.view.fragment.DashboardFragment"
         android:label="fragment_dashboard"
-        tools:layout="@layout/fragment_dashboard" >
+        tools:layout="@layout/fragment_dashboard">
+        <action
+            android:id="@+id/action_dashboard_to_addPet"
+            app:destination="@id/addPetFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/addPetFragment"
+        android:name="www.com.petsitternow_app.ui.pet.AddPetFragment"
+        android:label="Ajouter un chien"
+        tools:layout="@layout/fragment_add_pet" />
 </navigation>
