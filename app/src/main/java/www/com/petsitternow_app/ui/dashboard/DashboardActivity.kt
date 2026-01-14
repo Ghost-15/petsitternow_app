@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -24,6 +26,13 @@ class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
+
+        val bottomNav = findViewById<BottomNavigationView>(R.id.nav_view)
+        ViewCompat.setOnApplyWindowInsetsListener(bottomNav) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(0, 0, 0, 0)
+            insets
+        }
 
         if (savedInstanceState == null) {
             setupBottomNavigationBar()
