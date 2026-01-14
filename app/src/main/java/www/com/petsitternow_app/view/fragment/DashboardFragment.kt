@@ -3,7 +3,6 @@ package www.com.petsitternow_app.view.fragment
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -11,20 +10,30 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
+import www.com.petsitternow_app.domain.repository.Pet
 
 @AndroidEntryPoint
 class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
     private val viewModel: DashboardViewModel by viewModels()
-    private var contentView: View? = null
+    private var petAdapter: PetAdapter? = null
+    private var isViewSetup = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        isViewSetup = false
         observeState()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadPets()
     }
 
     private fun observeState() {
@@ -32,17 +41,17 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
                     when {
-                        state.isLoading -> {
-                            showLoading()
-                        }
-                        state.error != null -> {
-                            showError(state.error)
-                        }
-                        state.userType != null -> {
-                            updateView(state.userType)
-                        }
+                        state.isLoading -> showLoading()
+                        state.error != null -> showError(state.error)
                         else -> {
-                            updateView("owner")
+                            val userType = state.userType ?: "owner"
+                            if (!isViewSetup) {
+                                setupView(userType)
+                                isViewSetup = true
+                            }
+                            if (userType == "owner" || state.userType == null) {
+                                updatePetsDisplay(state.pets)
+                            }
                         }
                     }
                 }
@@ -52,60 +61,70 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
     private fun showLoading() {
         val container = view?.findViewById<FrameLayout>(R.id.container) ?: return
+        if (isViewSetup) return
         container.removeAllViews()
-        
-        val loadingView = layoutInflater.inflate(
-            R.layout.fragment_dashboard_loading,
-            container,
-            false
-        )
-        container.addView(loadingView)
+        container.addView(layoutInflater.inflate(R.layout.fragment_dashboard_loading, container, false))
     }
 
     private fun showError(error: String) {
         val container = view?.findViewById<FrameLayout>(R.id.container) ?: return
         container.removeAllViews()
-        
-        val errorView = layoutInflater.inflate(
-            R.layout.fragment_dashboard_error,
-            container,
-            false
-        )
+        isViewSetup = false
+        val errorView = layoutInflater.inflate(R.layout.fragment_dashboard_error, container, false)
         errorView.findViewById<TextView>(R.id.tvError)?.text = error
         container.addView(errorView)
     }
 
-    private fun updateView(userType: String?) {
+    private fun setupView(userType: String) {
         val container = view?.findViewById<FrameLayout>(R.id.container) ?: return
-
-        contentView?.let { container.removeView(it) }
+        container.removeAllViews()
 
         val layoutId = when (userType) {
             "petsitter" -> R.layout.fragment_dashboard_petsitter
-            "owner" -> R.layout.fragment_dashboard_owner
             else -> R.layout.fragment_dashboard_owner
         }
 
-        contentView = layoutInflater.inflate(layoutId, container, false)
+        val contentView = layoutInflater.inflate(layoutId, container, false)
         container.addView(contentView)
 
-        if (userType == "petsitter") {
-            setupPetsitterView(contentView!!)
-        } else if (userType == "owner") {
-            setupOwnerView(contentView!!)
+        when (userType) {
+            "petsitter" -> setupPetsitterView(contentView)
+            else -> setupOwnerView(contentView)
         }
     }
 
     private fun setupPetsitterView(view: View) {
-        val btnMissions = view.findViewById<MaterialButton>(R.id.btnMissions)
-        btnMissions?.setOnClickListener {
-        }
+        view.findViewById<MaterialButton>(R.id.btnMissions)?.setOnClickListener { }
     }
 
     private fun setupOwnerView(view: View) {
-        val btnAddPet = view.findViewById<MaterialButton>(R.id.btnAddPet)
-        btnAddPet?.setOnClickListener {
+        view.findViewById<MaterialButton>(R.id.btnAddPet)?.setOnClickListener {
             findNavController().navigate(R.id.action_dashboard_to_addPet)
+        }
+
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerViewPets)
+        petAdapter = PetAdapter(emptyList())
+        recyclerView?.layoutManager = GridLayoutManager(requireContext(), 2)
+        recyclerView?.adapter = petAdapter
+    }
+
+    private fun updatePetsDisplay(pets: List<Pet>) {
+        val container = view?.findViewById<FrameLayout>(R.id.container) ?: return
+        val contentView = container.getChildAt(0) ?: return
+        
+        val recyclerView = contentView.findViewById<RecyclerView>(R.id.recyclerViewPets) ?: return
+        val tvNoPets = contentView.findViewById<TextView>(R.id.tvNoPets)
+        val cardHowItWorks = contentView.findViewById<View>(R.id.cardHowItWorks)
+
+        if (pets.isNotEmpty()) {
+            recyclerView.visibility = View.VISIBLE
+            tvNoPets?.visibility = View.GONE
+            cardHowItWorks?.visibility = View.GONE
+            petAdapter?.updatePets(pets)
+        } else {
+            recyclerView.visibility = View.GONE
+            tvNoPets?.visibility = View.VISIBLE
+            cardHowItWorks?.visibility = View.VISIBLE
         }
     }
 }
