@@ -6,8 +6,13 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.cardview.widget.CardView
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -31,9 +36,23 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
     private lateinit var tvBirthDate: TextView
     private lateinit var btnSubmit: Button
     private lateinit var tvError: TextView
+    private lateinit var cardPhoto: CardView
+    private lateinit var ivPhoto: ImageView
+    private lateinit var layoutAddPhoto: LinearLayout
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private var isInitializing = true
+
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            viewModel.updatePhotoUri(it)
+            ivPhoto.setImageURI(it)
+            ivPhoto.visibility = View.VISIBLE
+            layoutAddPhoto.visibility = View.GONE
+        }
+    }
 
     private val dogBreeds = listOf(
         "Labrador Retriever",
@@ -66,6 +85,9 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
         tvBirthDate = view.findViewById(R.id.tvBirthDate)
         btnSubmit = view.findViewById(R.id.btnSubmit)
         tvError = view.findViewById(R.id.tvError)
+        cardPhoto = view.findViewById(R.id.cardPhoto)
+        ivPhoto = view.findViewById(R.id.ivPhoto)
+        layoutAddPhoto = view.findViewById(R.id.layoutAddPhoto)
     }
 
     private fun setupSpinner() {
@@ -79,6 +101,10 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
     }
 
     private fun setupClickListeners() {
+        cardPhoto.setOnClickListener {
+            pickImageLauncher.launch("image/*")
+        }
+
         etName.doAfterTextChanged { text ->
             if (!isInitializing) {
                 viewModel.updateName(text?.toString() ?: "")
@@ -143,6 +169,12 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
 
                     if (state.birthDate.isNotEmpty() && tvBirthDate.text.toString() != state.birthDate) {
                         tvBirthDate.text = state.birthDate
+                    }
+
+                    state.photoUri?.let { uri ->
+                        ivPhoto.setImageURI(uri)
+                        ivPhoto.visibility = View.VISIBLE
+                        layoutAddPhoto.visibility = View.GONE
                     }
 
                     if (state.error != null) {

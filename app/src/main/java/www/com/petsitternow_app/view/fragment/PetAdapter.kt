@@ -3,8 +3,11 @@ package www.com.petsitternow_app.view.fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.CircleCropTransformation
 import www.com.petsitternow_app.R
 import www.com.petsitternow_app.domain.repository.Pet
 import java.util.Calendar
@@ -31,15 +34,28 @@ class PetAdapter(
     }
 
     inner class PetViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val ivPhoto: ImageView = itemView.findViewById(R.id.ivPhoto)
         private val tvEmoji: TextView = itemView.findViewById(R.id.tvEmoji)
         private val tvName: TextView = itemView.findViewById(R.id.tvName)
         private val tvBreed: TextView = itemView.findViewById(R.id.tvBreed)
         private val tvAge: TextView = itemView.findViewById(R.id.tvAge)
 
         fun bind(pet: Pet) {
-            tvEmoji.text = "🐕"
             tvName.text = pet.name
             tvBreed.text = pet.breed
+            
+            if (pet.photos.isNotEmpty()) {
+                ivPhoto.visibility = View.VISIBLE
+                tvEmoji.visibility = View.GONE
+                ivPhoto.load(pet.photos.first()) {
+                    crossfade(true)
+                    transformations(CircleCropTransformation())
+                }
+            } else {
+                ivPhoto.visibility = View.GONE
+                tvEmoji.visibility = View.VISIBLE
+                tvEmoji.text = "🐕"
+            }
             
             val age = calculateAge(pet.birthDate)
             tvAge.text = if (age != null) {

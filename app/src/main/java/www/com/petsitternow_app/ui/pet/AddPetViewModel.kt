@@ -1,8 +1,10 @@
 package www.com.petsitternow_app.ui.pet
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import www.com.petsitternow_app.domain.repository.AddPetData
 import www.com.petsitternow_app.domain.repository.PetRepository
 import java.text.SimpleDateFormat
@@ -21,6 +24,7 @@ data class AddPetState(
     val name: String = "",
     val breed: String = "",
     val birthDate: String = "",
+    val photoUri: Uri? = null,
     val error: String? = null,
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false
@@ -33,7 +37,8 @@ sealed class AddPetNavigation {
 @HiltViewModel
 class AddPetViewModel @Inject constructor(
     private val petRepository: PetRepository,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val storage: FirebaseStorage
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AddPetState())
@@ -52,6 +57,10 @@ class AddPetViewModel @Inject constructor(
 
     fun updateBirthDate(birthDate: String) {
         _state.value = _state.value.copy(birthDate = birthDate, error = null)
+    }
+
+    fun updatePhotoUri(uri: Uri?) {
+        _state.value = _state.value.copy(photoUri = uri, error = null)
     }
 
     private fun validate(): String? {
@@ -97,28 +106,46 @@ class AddPetViewModel @Inject constructor(
         _state.value = s.copy(isLoading = true, error = null)
 
         viewModelScope.launch {
-            petRepository.addPet(
-                ownerId = userId,
-                petData = AddPetData(
-                    name = s.name.trim(),
-                    breed = s.breed,
-                    birthDate = s.birthDate,
-                    photos = emptyList()
-                )
-            ).collect { result ->
-                if (result.isSuccess) {
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        isSuccess = true
-                    )
-                    _navigationEvent.emit(AddPetNavigation.GoBack)
-                } else {
-                    val exception = result.exceptionOrNull()
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        error = exception?.message ?: "Erreur lors de l'ajout de l'animal"
-                    )
+            try {
+                val photoUrls = mutableListOf<String>()
+                
+                s.photoUri?.let { uri ->
+                    val timestamp = System.currentTimeMillis()
+                    val fileName = "pets/$userId/${timestamp}_photo.jpg"
+                    val storageRef = storage.reference.child(fileName)
+                    storageRef.putFile(uri).await()
+                    val downloadUrl = storageRef.downloadUrl.await()
+                    photoUrls.add(downloadUrl.toString())
                 }
+
+                petRepository.addPet(
+                    ownerId = userId,
+                    petData = AddPetData(
+                        name = s.name.trim(),
+                        breed = s.breed,
+                        birthDate = s.birthDate,
+                        photos = photoUrls
+                    )
+                ).collect { result ->
+                    if (result.isSuccess) {
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            isSuccess = true
+                        )
+                        _navigationEvent.emit(AddPetNavigation.GoBack)
+                    } else {
+                        val exception = result.exceptionOrNull()
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            error = exception?.message ?: "Erreur lors de l'ajout de l'animal"
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Erreur lors de l'upload de l'image"
+                )
             }
         }
     }

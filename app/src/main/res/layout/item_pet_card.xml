@@ -11,15 +11,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="12dp"
+        android:gravity="center_horizontal">
 
-        <TextView
-            android:id="@+id/tvEmoji"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="🐕"
-            android:textSize="48sp" />
+        <FrameLayout
+            android:layout_width="80dp"
+            android:layout_height="80dp">
+
+            <ImageView
+                android:id="@+id/ivPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvEmoji"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="🐕"
+                android:textSize="48sp" />
+
+        </FrameLayout>
 
         <TextView
             android:id="@+id/tvName"
