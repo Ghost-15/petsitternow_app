@@ -1,11 +1,11 @@
 package www.com.petsitternow_app.data.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import www.com.petsitternow_app.domain.repository.UserRepository
-import java.time.Instant
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -36,12 +36,12 @@ class UserRepositoryImpl @Inject constructor(
                 "city" to city,
                 "codePostal" to codePostal,
                 "onboardingCompleted" to true,
-                "updatedAt" to Instant.now().toString()
+                "updatedAt" to System.currentTimeMillis()
             )
 
             firestore.collection("users")
                 .document(userId)
-                .update(data)
+                .set(data, SetOptions.merge())
                 .await()
 
             emit(Result.success(Unit))

@@ -8,16 +8,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import www.com.petsitternow_app.domain.repository.UserRepository
 import javax.inject.Inject
 
 
 enum class Gender(val value: String, val label: String) {
-    HOMME("homme", "Homme"),
-    FEMME("femme", "Femme"),
-    AUTRE("autre", "Autre")
+    HOMME("male", "Homme"),
+    FEMME("female", "Femme"),
+    AUTRE("other", "Autre")
 }
 
 
@@ -145,50 +145,46 @@ class OnboardingViewModel @Inject constructor(
         val s = _state.value
         _state.value = s.copy(isLoading = true, error = null)
 
-        userRepository.saveOnboardingData(
-            userId = userId,
-            firstName = s.firstName,
-            lastName = s.lastName,
-            phone = s.phone,
-            gender = s.gender?.value ?: "",
-            dateOfBirth = s.dateOfBirth,
-            userType = s.userType?.value ?: "",
-            address = s.address,
-            city = s.city,
-            codePostal = s.codePostal
-        ).onEach { result ->
-            result.onSuccess {
-                auth.currentUser?.getIdToken(true)?.addOnSuccessListener {
-                    val data = hashMapOf("userType" to (s.userType?.value ?: ""))
-                    FirebaseFunctions.getInstance()
-                        .getHttpsCallable("completeOnboarding")
-                        .call(data)
-                        .addOnSuccessListener {
-                            auth.currentUser?.getIdToken(true)
-                            _state.value = _state.value.copy(
-                                isLoading = false,
-                                isCompleted = true
-                            )
-                        }
-                        .addOnFailureListener { e ->
-                            _state.value = _state.value.copy(
-                                isLoading = false,
-                                error = e.message ?: "Erreur lors de la mise à jour des permissions"
-                            )
-                        }
-                }?.addOnFailureListener { e ->
-                    _state.value = _state.value.copy(
-                        isLoading = false,
-                        error = e.message ?: "Erreur d'authentification"
-                    )
+        viewModelScope.launch {
+            try {
+                userRepository.saveOnboardingData(
+                    userId = userId,
+                    firstName = s.firstName,
+                    lastName = s.lastName,
+                    phone = s.phone,
+                    gender = s.gender?.value ?: "",
+                    dateOfBirth = s.dateOfBirth,
+                    userType = s.userType?.value ?: "",
+                    address = s.address,
+                    city = s.city,
+                    codePostal = s.codePostal
+                ).collect { result ->
+                    result.onSuccess {
+                        auth.currentUser?.getIdToken(true)?.await()
+
+                        val data = hashMapOf("userType" to (s.userType?.value ?: ""))
+                        FirebaseFunctions.getInstance()
+                            .getHttpsCallable("completeOnboarding")
+                            .call(data)
+                            .await()
+
+                        auth.currentUser?.getIdToken(true)?.await()
+                        _state.value = _state.value.copy(isLoading = false, isCompleted = true)
+
+                    }.onFailure { e ->
+                        _state.value = _state.value.copy(
+                            isLoading = false,
+                            error = e.message ?: "Erreur lors de la sauvegarde"
+                        )
+                    }
                 }
-            }.onFailure { e ->
+            } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    error = e.message ?: "Erreur lors de la sauvegarde"
+                    error = e.message ?: "Erreur inattendue"
                 )
             }
-        }.launchIn(viewModelScope)
+        }
     }
 }
 
