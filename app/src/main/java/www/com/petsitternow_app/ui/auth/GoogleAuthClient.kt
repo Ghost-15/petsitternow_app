@@ -8,7 +8,6 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import java.security.SecureRandom
 import java.util.UUID
 
 class GoogleAuthClient(

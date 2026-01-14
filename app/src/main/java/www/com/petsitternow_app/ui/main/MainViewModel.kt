@@ -13,6 +13,7 @@ import javax.inject.Inject
 sealed class MainNavigation {
     object GoToDashboard : MainNavigation()
     object GoToSignIn : MainNavigation()
+    object GoToOnboarding : MainNavigation()
 }
 
 @HiltViewModel
@@ -26,8 +27,15 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             delay(3000L) // Conserve le délai du splash screen
+            
             if (repository.isUserAuthenticated()) {
-                _navigationEvent.emit(MainNavigation.GoToDashboard)
+                val onboardingCompleted = repository.isOnboardingCompleted()
+                
+                if (onboardingCompleted) {
+                    _navigationEvent.emit(MainNavigation.GoToDashboard)
+                } else {
+                    _navigationEvent.emit(MainNavigation.GoToOnboarding)
+                }
             } else {
                 _navigationEvent.emit(MainNavigation.GoToSignIn)
             }

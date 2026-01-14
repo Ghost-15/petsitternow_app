@@ -42,4 +42,19 @@ class AuthRepositoryImpl @Inject constructor(
     override fun isUserAuthenticated(): Boolean = auth.currentUser != null
 
     override fun logout() = auth.signOut()
+
+    override suspend fun isOnboardingCompleted(): Boolean {
+        val user = auth.currentUser ?: return false
+        return try {
+            val tokenResult = user.getIdToken(false).await()
+            val claims = tokenResult.claims
+            claims["onboardingCompleted"] as? Boolean ?: false
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    override suspend fun refreshToken() {
+        auth.currentUser?.getIdToken(true)?.await()
+    }
 }
