@@ -13,7 +13,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
-import www.com.petsitternow_app.ui.dashboard.DashboardActivity
+import www.com.petsitternow_app.ui.onboarding.OnboardingActivity
 
 @AndroidEntryPoint
 class SignUpActivity : AppCompatActivity() {
@@ -41,15 +41,16 @@ class SignUpActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.signUpState.collect { state ->
-                    if (state.isLoading) {
-                        // Gérer l'état de chargement si nécessaire
-                    }
+                    btnSignUp.isEnabled = !state.isLoading
+                    
                     state.error?.let {
                         Toast.makeText(this@SignUpActivity, it, Toast.LENGTH_LONG).show()
                     }
                     if (state.isSignUpSuccess) {
                         Toast.makeText(this@SignUpActivity, "Inscription réussie !", Toast.LENGTH_LONG).show()
-                        startActivity(Intent(this@SignUpActivity, DashboardActivity::class.java))
+                        val intent = Intent(this@SignUpActivity, OnboardingActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
                         finish()
                     }
                 }

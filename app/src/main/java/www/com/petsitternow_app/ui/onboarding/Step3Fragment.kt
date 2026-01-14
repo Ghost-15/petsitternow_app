@@ -1,6 +1,5 @@
 package www.com.petsitternow_app.ui.onboarding
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -16,7 +15,6 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
-import www.com.petsitternow_app.ui.main.MainActivity
 
 @AndroidEntryPoint
 class Step3Fragment : Fragment(R.layout.fragment_onboarding_step3) {
@@ -109,10 +107,7 @@ class Step3Fragment : Fragment(R.layout.fragment_onboarding_step3) {
 
                     if (state.isCompleted && !hasNavigated) {
                         hasNavigated = true
-                        val intent = Intent(requireContext(), MainActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                        requireActivity().finish()
+                        (requireActivity() as? OnboardingActivity)?.navigateToDashboard()
                     }
 
                     isInitializing = false

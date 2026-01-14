@@ -9,4 +9,6 @@ interface AuthRepository {
     fun signInWithGoogle(idToken: String): Flow<Result<AuthResult>>
     fun isUserAuthenticated(): Boolean
     fun logout()
+    suspend fun isOnboardingCompleted(): Boolean
+    suspend fun refreshToken()
 }

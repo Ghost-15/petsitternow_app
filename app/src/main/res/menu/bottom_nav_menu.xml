@@ -12,11 +12,6 @@
         android:icon="@drawable/ic_person" />
 
     <item
-        android:id="@+id/nav_onboarding"
-        android:title="Onboarding"
-        android:icon="@drawable/ic_person" />
-
-    <item
         android:id="@+id/nav_message"
         android:title="Message"
         android:icon="@drawable/ic_message" />

@@ -2,19 +2,21 @@ package www.com.petsitternow_app.ui.dashboard
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
-import www.com.petsitternow_app.ui.auth.SignInActivity
+import www.com.petsitternow_app.ui.onboarding.OnboardingActivity
 import www.com.petsitternow_app.view.fragment.setupWithNavController
 
 @AndroidEntryPoint
@@ -34,10 +36,49 @@ class DashboardActivity : AppCompatActivity() {
             insets
         }
 
+        observeNavigationEvents()
+        observeState()
+
         if (savedInstanceState == null) {
             setupBottomNavigationBar()
         }
+    }
 
+    private fun observeNavigationEvents() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.navigationEvent.collect { navigation ->
+                    when (navigation) {
+                        is DashboardNavigation.GoToOnboarding -> {
+                            val intent = Intent(this@DashboardActivity, OnboardingActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            startActivity(intent)
+                            finish()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { state ->
+
+                    val bottomNav = findViewById<BottomNavigationView>(R.id.nav_view)
+                    val navHostFragment = findViewById<View>(R.id.nav_host_fragment)
+                    
+                    if (!state.isLoading && state.onboardingCompleted) {
+                        bottomNav.visibility = View.VISIBLE
+                        navHostFragment.visibility = View.VISIBLE
+                    } else if (state.isLoading) {
+                        bottomNav.visibility = View.INVISIBLE
+                        navHostFragment.visibility = View.INVISIBLE
+                    }
+                }
+            }
+        }
     }
 
     private fun setupBottomNavigationBar() {

@@ -19,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
 import www.com.petsitternow_app.ui.dashboard.DashboardActivity
+import www.com.petsitternow_app.ui.onboarding.OnboardingActivity
 
 @AndroidEntryPoint
 class SignInActivity : AppCompatActivity() {
@@ -81,14 +82,24 @@ class SignInActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.signInState.collect { state ->
-                    if (state.isLoading) {
-                    }
+                    btnSignIn.isEnabled = !state.isLoading
+                    
                     state.error?.let {
                         Toast.makeText(this@SignInActivity, it, Toast.LENGTH_LONG).show()
                     }
+                    
                     if (state.isSignInSuccess) {
                         Toast.makeText(this@SignInActivity, "Connexion réussie !", Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this@SignInActivity, DashboardActivity::class.java))
+                        
+                        val targetActivity = if (state.needsOnboarding) {
+                            OnboardingActivity::class.java
+                        } else {
+                            DashboardActivity::class.java
+                        }
+                        
+                        val intent = Intent(this@SignInActivity, targetActivity)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
                         finish()
                     }
                 }

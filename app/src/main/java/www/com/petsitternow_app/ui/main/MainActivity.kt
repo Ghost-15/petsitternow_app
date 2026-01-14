@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
 import www.com.petsitternow_app.ui.auth.SignInActivity
 import www.com.petsitternow_app.ui.dashboard.DashboardActivity
+import www.com.petsitternow_app.ui.onboarding.OnboardingActivity
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -29,6 +30,9 @@ class MainActivity : AppCompatActivity() {
                     }
                     is MainNavigation.GoToSignIn -> {
                         startActivity(Intent(this@MainActivity, SignInActivity::class.java))
+                    }
+                    is MainNavigation.GoToOnboarding -> {
+                        startActivity(Intent(this@MainActivity, OnboardingActivity::class.java))
                     }
                 }
                 finish()
