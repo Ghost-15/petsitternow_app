@@ -1,156 +1,241 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3F4F6"
+    android:background="@color/background_light"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
-            android:text="Créer votre profil"
-            android:textColor="#111827"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="24dp"
-            android:text="Étape 1 sur 3"
-            android:textColor="#6B7280" />
+        android:paddingBottom="32dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
+            android:background="@drawable/bg_gradient_primary"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="24dp"
+            android:gravity="center">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="Informations personnelles"
-                android:textColor="#111827"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:text="👤"
+                android:textSize="40sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Créer votre profil"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginTop="8dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_step_indicator"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="6dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Étape 1 sur 3"
+                    android:textSize="13sp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <TextView
                 android:id="@+id/tvError"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:background="#FEE2E2"
+                android:background="@drawable/bg_error_message"
                 android:padding="12dp"
-                android:textColor="#DC2626"
+                android:textColor="#EF4444"
+                android:textSize="13sp"
                 android:visibility="gone" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Prénom"
-                android:textColor="#374151" />
-
-            <EditText
-                android:id="@+id/etFirstName"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="12dp"
-                android:background="@android:drawable/edit_text"
-                android:hint="Votre prénom"
-                android:inputType="textPersonName"
-                android:padding="12dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nom"
-                android:textColor="#374151" />
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/white">
 
-            <EditText
-                android:id="@+id/etLastName"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="12dp"
-                android:background="@android:drawable/edit_text"
-                android:hint="Votre nom"
-                android:inputType="textPersonName"
-                android:padding="12dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Téléphone"
-                android:textColor="#374151" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="20dp">
 
-            <EditText
-                android:id="@+id/etPhone"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="12dp"
-                android:background="@android:drawable/edit_text"
-                android:hint="0612345678"
-                android:inputType="phone"
-                android:maxLength="10"
-                android:padding="12dp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📋"
+                            android:textSize="20sp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Genre"
-                android:textColor="#374151" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Informations personnelles"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"
+                            android:layout_marginStart="8dp" />
 
-            <Spinner
-                android:id="@+id/spinnerGender"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="12dp"
-                android:background="@android:drawable/edit_text" />
+                    </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Date de naissance"
-                android:textColor="#374151" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Prénom"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="8dp" />
 
-            <EditText
-                android:id="@+id/etDateOfBirth"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="20dp"
-                android:background="@android:drawable/edit_text"
-                android:clickable="true"
-                android:focusable="false"
-                android:hint="Sélectionner une date"
-                android:padding="12dp" />
+                    <EditText
+                        android:id="@+id/etFirstName"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:hint="Votre prénom"
+                        android:textColorHint="@color/text_muted"
+                        android:inputType="textPersonName"
+                        android:paddingHorizontal="16dp"
+                        android:background="@drawable/bg_input_field_focused"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="16dp" />
 
-            <Button
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nom"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="8dp" />
+
+                    <EditText
+                        android:id="@+id/etLastName"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:hint="Votre nom"
+                        android:textColorHint="@color/text_muted"
+                        android:inputType="textPersonName"
+                        android:paddingHorizontal="16dp"
+                        android:background="@drawable/bg_input_field_focused"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Téléphone"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="8dp" />
+
+                    <EditText
+                        android:id="@+id/etPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:hint="0612345678"
+                        android:textColorHint="@color/text_muted"
+                        android:inputType="phone"
+                        android:maxLength="10"
+                        android:paddingHorizontal="16dp"
+                        android:background="@drawable/bg_input_field_focused"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Genre"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="8dp" />
+
+                    <Spinner
+                        android:id="@+id/spinnerGender"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:paddingHorizontal="12dp"
+                        android:background="@drawable/bg_input_field"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Date de naissance"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="8dp" />
+
+                    <EditText
+                        android:id="@+id/etDateOfBirth"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:hint="Sélectionner une date"
+                        android:textColorHint="@color/text_muted"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:paddingHorizontal="16dp"
+                        android:background="@drawable/bg_input_field"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_primary"
+                        android:drawableEnd="@android:drawable/ic_menu_my_calendar" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnNext"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:backgroundTint="#2563EB"
+                android:layout_height="56dp"
+                android:layout_marginTop="20dp"
                 android:text="Suivant"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:textAllCaps="false"
-                android:textColor="@android:color/white" />
+                android:background="@drawable/bg_button_gradient"
+                app:backgroundTint="@null"
+                app:cornerRadius="12dp" />
 
         </LinearLayout>
 
     </LinearLayout>
-</ScrollView>
 
+</androidx.core.widget.NestedScrollView>

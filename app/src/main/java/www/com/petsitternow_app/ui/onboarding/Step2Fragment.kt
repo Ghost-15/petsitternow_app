@@ -2,10 +2,9 @@ package www.com.petsitternow_app.ui.onboarding
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.TextView
+import com.google.android.material.button.MaterialButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -22,12 +21,12 @@ class Step2Fragment : Fragment(R.layout.fragment_onboarding_step2) {
     // ViewModel partagé avec les autres étapes
     private val viewModel: OnboardingViewModel by activityViewModels()
 
-    private lateinit var optionOwner: LinearLayout
-    private lateinit var optionPetsitter: LinearLayout
+    private lateinit var optionOwner: View
+    private lateinit var optionPetsitter: View
     private lateinit var radioOwner: RadioButton
     private lateinit var radioPetsitter: RadioButton
-    private lateinit var btnPrevious: Button
-    private lateinit var btnNext: Button
+    private lateinit var btnPrevious: MaterialButton
+    private lateinit var btnNext: MaterialButton
     private lateinit var tvError: TextView
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

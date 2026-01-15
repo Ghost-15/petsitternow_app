@@ -5,10 +5,10 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
+import com.google.android.material.button.MaterialButton
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -34,7 +34,7 @@ class Step1Fragment : Fragment(R.layout.fragment_onboarding_step1) {
     private lateinit var etPhone: EditText
     private lateinit var spinnerGender: Spinner
     private lateinit var etDateOfBirth: EditText
-    private lateinit var btnNext: Button
+    private lateinit var btnNext: MaterialButton
     private lateinit var tvError: TextView
 
     private val genderOptions = listOf("Sélectionner...", "Homme", "Femme", "Autre")
