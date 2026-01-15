@@ -35,9 +35,8 @@ class DashboardViewModel @Inject constructor(
 
     val navGraphIds = listOf(
         R.navigation.nav_dashboard,
-        R.navigation.nav_profile,
         R.navigation.nav_message,
-        R.navigation.nav_setting
+        R.navigation.nav_profile
     )
 
     val defaultSelectedItemId = R.id.nav_dashboard

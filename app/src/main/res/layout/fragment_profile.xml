@@ -457,6 +457,23 @@
 
             </androidx.cardview.widget.CardView>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:text="Se déconnecter"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                android:textColor="#EF4444"
+                android:background="@drawable/bg_button_delete"
+                app:backgroundTint="@null"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_logout"
+                app:iconTint="#EF4444"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+
         </LinearLayout>
 
     </LinearLayout>
