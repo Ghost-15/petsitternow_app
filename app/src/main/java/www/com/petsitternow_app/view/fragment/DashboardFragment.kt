@@ -119,18 +119,21 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         val contentView = container.getChildAt(0) ?: return
         
         val recyclerView = contentView.findViewById<RecyclerView>(R.id.recyclerViewPets) ?: return
-        val tvNoPets = contentView.findViewById<TextView>(R.id.tvNoPets)
+        val layoutNoPets = contentView.findViewById<View>(R.id.layoutNoPets)
         val cardHowItWorks = contentView.findViewById<View>(R.id.cardHowItWorks)
+        val tvPetsCount = contentView.findViewById<TextView>(R.id.tvPetsCount)
 
         if (pets.isNotEmpty()) {
             recyclerView.visibility = View.VISIBLE
-            tvNoPets?.visibility = View.GONE
+            layoutNoPets?.visibility = View.GONE
             cardHowItWorks?.visibility = View.GONE
+            tvPetsCount?.text = "${pets.size} ${if (pets.size > 1) "chiens" else "chien"}"
             petAdapter?.updatePets(pets)
         } else {
             recyclerView.visibility = View.GONE
-            tvNoPets?.visibility = View.VISIBLE
+            layoutNoPets?.visibility = View.VISIBLE
             cardHowItWorks?.visibility = View.VISIBLE
+            tvPetsCount?.text = ""
         }
     }
 }

@@ -5,4 +5,21 @@
     <color name="blueUPfonce">#0066CC</color>
     <color name="underline">#A0A0A0</color>
     <color name="transparent">#0000ffff</color>
+    
+    <color name="background_light">#F8FAFC</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="primary">#3B82F6</color>
+    <color name="primary_dark">#2563EB</color>
+    <color name="primary_light">#DBEAFE</color>
+    <color name="secondary">#8B5CF6</color>
+    <color name="success">#10B981</color>
+    <color name="success_light">#D1FAE5</color>
+    <color name="warning">#F59E0B</color>
+    <color name="warning_light">#FEF3C7</color>
+    <color name="text_primary">#1E293B</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="text_muted">#94A3B8</color>
+    <color name="border">#E2E8F0</color>
+    <color name="gradient_start">#3B82F6</color>
+    <color name="gradient_end">#8B5CF6</color>
 </resources>

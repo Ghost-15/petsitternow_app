@@ -59,10 +59,12 @@ class PetAdapter(
             }
             
             val age = calculateAge(pet.birthDate)
-            tvAge.text = if (age != null) {
-                "$age ${if (age <= 1) "an" else "ans"}"
+            val ageParent = tvAge.parent as? View
+            if (age != null) {
+                tvAge.text = "$age ${if (age <= 1) "an" else "ans"}"
+                ageParent?.visibility = View.VISIBLE
             } else {
-                ""
+                ageParent?.visibility = View.GONE
             }
 
             itemView.setOnClickListener {

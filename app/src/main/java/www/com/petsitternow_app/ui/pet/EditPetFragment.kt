@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Spinner
@@ -42,6 +43,7 @@ class EditPetFragment : Fragment(R.layout.fragment_edit_pet) {
     private lateinit var progressBar: ProgressBar
     private lateinit var contentLayout: LinearLayout
     private lateinit var photoAdapter: PhotoAdapter
+    private lateinit var btnBack: ImageView
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private var isInitializing = true
@@ -175,6 +177,7 @@ class EditPetFragment : Fragment(R.layout.fragment_edit_pet) {
         recyclerPhotos = view.findViewById(R.id.recyclerPhotos)
         progressBar = view.findViewById(R.id.progressBar)
         contentLayout = view.findViewById(R.id.contentLayout)
+        btnBack = view.findViewById(R.id.btnBack)
 
         photoAdapter = PhotoAdapter(
             onAddClick = { pickImageLauncher.launch("image/*") },
@@ -201,6 +204,10 @@ class EditPetFragment : Fragment(R.layout.fragment_edit_pet) {
     }
 
     private fun setupClickListeners() {
+        btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
         etName.doAfterTextChanged { text ->
             if (!isInitializing) {
                 viewModel.updateName(text?.toString() ?: "")
