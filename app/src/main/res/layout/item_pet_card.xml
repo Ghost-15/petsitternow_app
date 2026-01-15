@@ -69,7 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="@drawable/bg_age_badge"
+            android:background="@drawable/bg_badge_age"
             android:paddingHorizontal="10dp"
             android:paddingVertical="4dp">
 

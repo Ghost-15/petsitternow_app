@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
+import www.com.petsitternow_app.util.DogBreedsLoader
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -38,6 +39,7 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
     private lateinit var recyclerPhotos: RecyclerView
     private lateinit var photoAdapter: PhotoAdapter
     private lateinit var btnBack: ImageView
+    private lateinit var dogBreeds: List<String>
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private var isInitializing = true
@@ -50,111 +52,10 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
         }
     }
 
-    private val dogBreeds = listOf(
-        "Affenpinscher",
-        "Airedale Terrier",
-        "Akita",
-        "Akita Américain",
-        "Alaskan Husky",
-        "Alaskan Malamute",
-        "American Bully",
-        "American Pit Bull Terrier",
-        "American Staffordshire Terrier",
-        "American Water Spaniel",
-        "Anglais Springer Spaniel",
-        "Australian Cattle Dog",
-        "Australian Kelpie",
-        "Australian Shepherd",
-        "Australian Terrier",
-        "Basenji",
-        "Basset Hound",
-        "Beagle",
-        "Bearded Collie",
-        "Bedlington Terrier",
-        "Berger Allemand",
-        "Berger Australien",
-        "Berger Belge",
-        "Berger Blanc Suisse",
-        "Berger de Brie",
-        "Berger des Pyrénées",
-        "Berger Hollandais",
-        "Berger Shetland",
-        "Bernois",
-        "Bichon Frisé",
-        "Bichon Maltais",
-        "Border Collie",
-        "Border Terrier",
-        "Boston Terrier",
-        "Bouledogue Américain",
-        "Bouledogue Anglais",
-        "Bouledogue Français",
-        "Boxer",
-        "Braque Allemand",
-        "Braque de Weimar",
-        "Briard",
-        "Bull Terrier",
-        "Bulldog",
-        "Bullmastiff",
-        "Cairn Terrier",
-        "Caniche",
-        "Cane Corso",
-        "Cavalier King Charles Spaniel",
-        "Chihuahua",
-        "Chow Chow",
-        "Cocker Spaniel",
-        "Colley",
-        "Dalmatien",
-        "Doberman",
-        "Dogue Allemand",
-        "Dogue Argentin",
-        "Dogue de Bordeaux",
-        "English Setter",
-        "Épagneul Breton",
-        "Épagneul Papillon",
-        "Fox Terrier",
-        "Foxhound",
-        "Golden Retriever",
-        "Grand Bouvier Suisse",
-        "Greyhound",
-        "Griffon Bruxellois",
-        "Husky Sibérien",
-        "Jack Russell Terrier",
-        "Labrador Retriever",
-        "Lévrier Afghan",
-        "Lévrier Espagnol",
-        "Malamute",
-        "Mastiff",
-        "Montagne des Pyrénées",
-        "Newfoundland",
-        "Pékinois",
-        "Pinscher",
-        "Pointer",
-        "Pomeranian",
-        "Poodle",
-        "Pug",
-        "Rottweiler",
-        "Saint-Bernard",
-        "Samoyède",
-        "Schnauzer",
-        "Setter Irlandais",
-        "Shar Pei",
-        "Shiba Inu",
-        "Shih Tzu",
-        "Staffordshire Bull Terrier",
-        "Teckel",
-        "Terrier",
-        "Terre-Neuve",
-        "Vizsla",
-        "Weimaraner",
-        "Welsh Corgi",
-        "West Highland White Terrier",
-        "Whippet",
-        "Yorkshire Terrier"
-    )
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        dogBreeds = DogBreedsLoader.getBreeds(requireContext())
         initViews(view)
         setupSpinner()
         setupClickListeners()
