@@ -37,7 +37,7 @@
             android:id="@+id/tvPhotoLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Photo"
+            android:text="Photos"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/black"
@@ -45,55 +45,15 @@
             app:layout_constraintTop_toBottomOf="@id/divider"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardPhoto"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginTop="8dp"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerPhotos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
+            android:clipToPadding="false"
+            android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/tvPhotoLabel"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#F5F5F5">
-
-                <ImageView
-                    android:id="@+id/ivPhoto"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:visibility="gone" />
-
-                <LinearLayout
-                    android:id="@+id/layoutAddPhoto"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📷"
-                        android:textSize="32sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Ajouter"
-                        android:textSize="12sp"
-                        android:textColor="@color/underline"
-                        android:layout_marginTop="4dp" />
-
-                </LinearLayout>
-
-            </FrameLayout>
-
-        </androidx.cardview.widget.CardView>
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/tvNameLabel"
@@ -104,7 +64,7 @@
             android:textStyle="bold"
             android:textColor="@color/black"
             android:layout_marginBottom="8dp"
-            app:layout_constraintTop_toBottomOf="@id/cardPhoto"
+            app:layout_constraintTop_toBottomOf="@id/recyclerPhotos"
             app:layout_constraintStart_toStartOf="parent" />
 
         <EditText

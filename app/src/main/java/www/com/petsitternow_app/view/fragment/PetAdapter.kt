@@ -13,7 +13,8 @@ import www.com.petsitternow_app.domain.repository.Pet
 import java.util.Calendar
 
 class PetAdapter(
-    private var pets: List<Pet>
+    private var pets: List<Pet>,
+    private val onPetClick: (Pet) -> Unit
 ) : RecyclerView.Adapter<PetAdapter.PetViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PetViewHolder {
@@ -62,6 +63,10 @@ class PetAdapter(
                 "$age ${if (age <= 1) "an" else "ans"}"
             } else {
                 ""
+            }
+
+            itemView.setOnClickListener {
+                onPetClick(pet)
             }
         }
 

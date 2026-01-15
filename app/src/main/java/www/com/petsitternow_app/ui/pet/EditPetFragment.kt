@@ -1,11 +1,14 @@
 package www.com.petsitternow_app.ui.pet
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,15 +29,18 @@ import java.util.Calendar
 import java.util.Locale
 
 @AndroidEntryPoint
-class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
+class EditPetFragment : Fragment(R.layout.fragment_edit_pet) {
 
-    private val viewModel: AddPetViewModel by viewModels()
+    private val viewModel: EditPetViewModel by viewModels()
     private lateinit var etName: EditText
     private lateinit var spinnerBreed: Spinner
     private lateinit var tvBirthDate: TextView
     private lateinit var btnSubmit: Button
+    private lateinit var btnDelete: Button
     private lateinit var tvError: TextView
     private lateinit var recyclerPhotos: RecyclerView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var contentLayout: LinearLayout
     private lateinit var photoAdapter: PhotoAdapter
 
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -44,7 +50,7 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
         ActivityResultContracts.GetMultipleContents()
     ) { uris ->
         if (uris.isNotEmpty()) {
-            viewModel.addPhotoUris(uris)
+            viewModel.addNewPhotoUris(uris)
         }
     }
 
@@ -164,14 +170,18 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
         spinnerBreed = view.findViewById(R.id.spinnerBreed)
         tvBirthDate = view.findViewById(R.id.tvBirthDate)
         btnSubmit = view.findViewById(R.id.btnSubmit)
+        btnDelete = view.findViewById(R.id.btnDelete)
         tvError = view.findViewById(R.id.tvError)
         recyclerPhotos = view.findViewById(R.id.recyclerPhotos)
+        progressBar = view.findViewById(R.id.progressBar)
+        contentLayout = view.findViewById(R.id.contentLayout)
 
         photoAdapter = PhotoAdapter(
             onAddClick = { pickImageLauncher.launch("image/*") },
             onRemoveClick = { item ->
                 when (item) {
-                    is PhotoItem.NewPhoto -> viewModel.removePhotoUri(item.uri)
+                    is PhotoItem.ExistingPhoto -> viewModel.removeExistingPhoto(item.url)
+                    is PhotoItem.NewPhoto -> viewModel.removeNewPhoto(item.uri)
                     else -> {}
                 }
             }
@@ -214,10 +224,24 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
         btnSubmit.setOnClickListener {
             viewModel.submitPet()
         }
+
+        btnDelete.setOnClickListener {
+            showDeleteConfirmation()
+        }
     }
 
     private fun showDatePicker() {
         val calendar = Calendar.getInstance()
+
+        val currentDate = viewModel.state.value.birthDate
+        if (currentDate.isNotEmpty()) {
+            try {
+                dateFormat.parse(currentDate)?.let {
+                    calendar.time = it
+                }
+            } catch (_: Exception) {}
+        }
+
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
@@ -238,10 +262,30 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
         }.show()
     }
 
+    private fun showDeleteConfirmation() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Supprimer l'animal")
+            .setMessage("Êtes-vous sûr de vouloir supprimer cet animal ? Cette action est irréversible.")
+            .setPositiveButton("Supprimer") { _, _ ->
+                viewModel.deletePet()
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
+    }
+
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
+                    if (state.isLoading) {
+                        progressBar.visibility = View.VISIBLE
+                        contentLayout.visibility = View.GONE
+                        return@collect
+                    }
+
+                    progressBar.visibility = View.GONE
+                    contentLayout.visibility = View.VISIBLE
+
                     isInitializing = true
 
                     if (etName.text.toString() != state.name) {
@@ -252,7 +296,12 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
                         tvBirthDate.text = state.birthDate
                     }
 
-                    photoAdapter.updatePhotos(emptyList(), state.photoUris)
+                    val breedIndex = dogBreeds.indexOf(state.breed)
+                    if (breedIndex >= 0 && spinnerBreed.selectedItemPosition != breedIndex) {
+                        spinnerBreed.setSelection(breedIndex)
+                    }
+
+                    photoAdapter.updatePhotos(state.existingPhotos, state.newPhotoUris)
 
                     if (state.error != null) {
                         tvError.text = state.error
@@ -261,8 +310,9 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
                         tvError.visibility = View.GONE
                     }
 
-                    btnSubmit.isEnabled = !state.isLoading
-                    btnSubmit.text = if (state.isLoading) "Enregistrement..." else "Enregistrer"
+                    btnSubmit.isEnabled = !state.isSaving
+                    btnDelete.isEnabled = !state.isSaving
+                    btnSubmit.text = if (state.isSaving) "Enregistrement..." else "Enregistrer"
 
                     isInitializing = false
                 }
@@ -273,8 +323,8 @@ class AddPetFragment : Fragment(R.layout.fragment_add_pet) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.navigationEvent.collect { navigation ->
                     when (navigation) {
-                        is AddPetNavigation.GoBack -> {
-                            if (findNavController().currentDestination?.id == R.id.addPetFragment) {
+                        is EditPetNavigation.GoBack -> {
+                            if (findNavController().currentDestination?.id == R.id.editPetFragment) {
                                 findNavController().popBackStack()
                             }
                         }

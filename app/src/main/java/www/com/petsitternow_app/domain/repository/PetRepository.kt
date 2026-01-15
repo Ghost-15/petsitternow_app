@@ -21,4 +21,7 @@ data class Pet(
 interface PetRepository {
     fun addPet(ownerId: String, petData: AddPetData): Flow<Result<String>>
     fun getPets(ownerId: String): Flow<Result<List<Pet>>>
+    fun getPetById(petId: String): Flow<Result<Pet>>
+    fun updatePet(petId: String, petData: AddPetData): Flow<Result<Unit>>
+    fun deletePet(petId: String): Flow<Result<Unit>>
 }
