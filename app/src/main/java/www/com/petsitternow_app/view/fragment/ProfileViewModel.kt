@@ -5,8 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -44,6 +47,9 @@ class ProfileViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(ProfileState())
     val state: StateFlow<ProfileState> = _state.asStateFlow()
+
+    private val _logoutEvent = MutableSharedFlow<Unit>()
+    val logoutEvent: SharedFlow<Unit> = _logoutEvent.asSharedFlow()
 
     init {
         loadProfileData()
@@ -103,6 +109,13 @@ class ProfileViewModel @Inject constructor(
                     isLoading = false
                 )
             }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            auth.signOut()
+            _logoutEvent.emit(Unit)
         }
     }
 }

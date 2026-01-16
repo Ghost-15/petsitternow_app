@@ -3,6 +3,7 @@ package www.com.petsitternow_app.ui.dashboard
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -38,10 +39,25 @@ class DashboardActivity : AppCompatActivity() {
 
         observeNavigationEvents()
         observeState()
+        setupBackPressHandler()
 
         if (savedInstanceState == null) {
             setupBottomNavigationBar()
         }
+    }
+
+    private fun setupBackPressHandler() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val navController = currentNavController?.value
+                if (navController != null && navController.previousBackStackEntry != null) {
+                    navController.popBackStack()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        })
     }
 
     private fun observeNavigationEvents() {

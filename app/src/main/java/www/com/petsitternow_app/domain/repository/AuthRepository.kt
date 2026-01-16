@@ -11,4 +11,5 @@ interface AuthRepository {
     fun logout()
     suspend fun isOnboardingCompleted(): Boolean
     suspend fun refreshToken()
+    suspend fun getUserType(): String?
 }

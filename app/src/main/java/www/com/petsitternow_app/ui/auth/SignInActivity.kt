@@ -4,10 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
-import android.widget.Button
+import android.view.View
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.Toast
+import com.google.android.material.button.MaterialButton
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -28,9 +28,9 @@ class SignInActivity : AppCompatActivity() {
     private lateinit var googleAuthClient: GoogleAuthClient
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
-    private lateinit var btnSignIn: Button
-    private lateinit var googleSignIn: LinearLayout
-    private lateinit var btnSignUp: LinearLayout
+    private lateinit var btnSignIn: MaterialButton
+    private lateinit var googleSignIn: View
+    private lateinit var btnSignUp: View
 
     private val addAccountLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK) {

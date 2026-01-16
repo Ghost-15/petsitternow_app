@@ -1,91 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_light"
+    android:fillViewport="true"
     tools:context=".view.activity.SignUpActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center_horizontal">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Créer un compte"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#111827"
-            android:layout_marginBottom="32dp" />
-
-        <EditText
-            android:id="@+id/etEmail"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Adresse e-mail"
-            android:inputType="textEmailAddress"
-            android:drawableStart="@android:drawable/ic_dialog_email"
-            android:drawablePadding="10dp"
-            android:padding="12dp"
-            android:background="@android:drawable/edit_text"
-            android:textColor="#111827"
-            android:textSize="16sp"
-            android:layout_marginBottom="16dp" />
+            android:background="@drawable/bg_gradient_primary"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:gravity="center">
 
-        <EditText
-            android:id="@+id/etPassword"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="✨"
+                android:textSize="48sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Créer un compte"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rejoignez la communauté PetSitterNow"
+                android:textSize="14sp"
+                android:textColor="#B3FFFFFF"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Mot de passe"
-            android:inputType="textPassword"
-            android:drawableStart="@android:drawable/ic_lock_lock"
-            android:drawablePadding="10dp"
-            android:padding="12dp"
-            android:background="@android:drawable/edit_text"
-            android:textColor="#111827"
-            android:textSize="16sp"
-            android:layout_marginBottom="16dp" />
+            android:orientation="vertical"
+            android:padding="20dp">
 
-        <EditText
-            android:id="@+id/etConfirmPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Confirmer le mot de passe"
-            android:inputType="textPassword"
-            android:drawableStart="@android:drawable/ic_lock_lock"
-            android:drawablePadding="10dp"
-            android:padding="12dp"
-            android:background="@android:drawable/edit_text"
-            android:textColor="#111827"
-            android:textSize="16sp"
-            android:layout_marginBottom="24dp" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/white">
 
-        <Button
-            android:id="@+id/btnSignUp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="S'inscrire"
-            android:textAllCaps="false"
-            android:textSize="18sp"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#2563EB"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
 
-        <TextView
-            android:id="@+id/tvAlreadyAccount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Déjà un compte ? Se connecter"
-            android:textSize="14sp"
-            android:textColor="#2563EB"
-            android:layout_marginTop="8dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Adresse e-mail"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="8dp" />
+
+                    <EditText
+                        android:id="@+id/etEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:hint="exemple@email.com"
+                        android:textColorHint="@color/text_muted"
+                        android:inputType="textEmailAddress"
+                        android:paddingHorizontal="16dp"
+                        android:background="@drawable/bg_input_field_focused"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mot de passe"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="8dp" />
+
+                    <EditText
+                        android:id="@+id/etPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:hint="Minimum 6 caractères"
+                        android:textColorHint="@color/text_muted"
+                        android:inputType="textPassword"
+                        android:paddingHorizontal="16dp"
+                        android:background="@drawable/bg_input_field_focused"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Confirmer le mot de passe"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="8dp" />
+
+                    <EditText
+                        android:id="@+id/etConfirmPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:hint="Répétez le mot de passe"
+                        android:textColorHint="@color/text_muted"
+                        android:inputType="textPassword"
+                        android:paddingHorizontal="16dp"
+                        android:background="@drawable/bg_input_field_focused"
+                        android:textSize="15sp"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginBottom="24dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSignUp"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="S'inscrire"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textAllCaps="false"
+                        android:background="@drawable/bg_button_gradient"
+                        app:backgroundTint="@null"
+                        app:cornerRadius="12dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/tvAlreadyAccount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:padding="8dp"
+                android:text="Déjà un compte ? Se connecter"
+                android:textSize="14sp"
+                android:textColor="@color/primary"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
     </LinearLayout>
-</ScrollView>
+
+</androidx.core.widget.NestedScrollView>

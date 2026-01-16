@@ -57,4 +57,15 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun refreshToken() {
         auth.currentUser?.getIdToken(true)?.await()
     }
+
+    override suspend fun getUserType(): String? {
+        val user = auth.currentUser ?: return null
+        return try {
+            val tokenResult = user.getIdToken(false).await()
+            val claims = tokenResult.claims
+            claims["userType"] as? String
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

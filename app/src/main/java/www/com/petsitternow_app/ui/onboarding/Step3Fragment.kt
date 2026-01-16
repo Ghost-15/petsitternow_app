@@ -2,9 +2,9 @@ package www.com.petsitternow_app.ui.onboarding
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import com.google.android.material.button.MaterialButton
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -24,8 +24,8 @@ class Step3Fragment : Fragment(R.layout.fragment_onboarding_step3) {
     private lateinit var etAddress: EditText
     private lateinit var etCity: EditText
     private lateinit var etCodePostal: EditText
-    private lateinit var btnPrevious: Button
-    private lateinit var btnFinish: Button
+    private lateinit var btnPrevious: MaterialButton
+    private lateinit var btnFinish: MaterialButton
     private lateinit var tvError: TextView
 
     private var isInitializing = true
