@@ -6,10 +6,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import www.com.petsitternow_app.data.repository.AuthRepositoryImpl
 import www.com.petsitternow_app.data.repository.PetRepositoryImpl
+import www.com.petsitternow_app.data.repository.PetsitterRepositoryImpl
 import www.com.petsitternow_app.data.repository.UserRepositoryImpl
+import www.com.petsitternow_app.data.repository.WalkRepositoryImpl
 import www.com.petsitternow_app.domain.repository.AuthRepository
 import www.com.petsitternow_app.domain.repository.PetRepository
+import www.com.petsitternow_app.domain.repository.PetsitterRepository
 import www.com.petsitternow_app.domain.repository.UserRepository
+import www.com.petsitternow_app.domain.repository.WalkRepository
 import javax.inject.Singleton
 
 @Module
@@ -33,4 +37,17 @@ abstract class RepositoryModule {
     abstract fun bindPetRepository(
         petRepositoryImpl: PetRepositoryImpl
     ): PetRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWalkRepository(
+        walkRepositoryImpl: WalkRepositoryImpl
+    ): WalkRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPetsitterRepository(
+        petsitterRepositoryImpl: PetsitterRepositoryImpl
+    ): PetsitterRepository
 }
+

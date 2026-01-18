@@ -16,6 +16,15 @@
         <action
             android:id="@+id/action_dashboard_to_editPet"
             app:destination="@id/editPetFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_walkHistory"
+            app:destination="@id/walkHistoryFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_missions"
+            app:destination="@id/missionsFragment" />
+        <action
+            android:id="@+id/action_dashboard_to_missionHistory"
+            app:destination="@id/missionHistoryFragment" />
     </fragment>
 
     <fragment
@@ -33,4 +42,22 @@
             android:name="petId"
             app:argType="string" />
     </fragment>
+
+    <!-- Walk Feature - Owner -->
+    <fragment
+        android:id="@+id/walkHistoryFragment"
+        android:name="www.com.petsitternow_app.ui.walk.WalkHistoryFragment"
+        android:label="Historique des promenades" />
+
+    <!-- Walk Feature - Petsitter -->
+    <fragment
+        android:id="@+id/missionsFragment"
+        android:name="www.com.petsitternow_app.ui.petsitter.MissionsFragment"
+        android:label="Missions" />
+
+    <fragment
+        android:id="@+id/missionHistoryFragment"
+        android:name="www.com.petsitternow_app.ui.petsitter.MissionHistoryFragment"
+        android:label="Historique des missions" />
+
 </navigation>
