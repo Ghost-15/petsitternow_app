@@ -13,10 +13,12 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import dagger.hilt.android.qualifiers.ApplicationContext
+import android.os.Handler
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
 import www.com.petsitternow_app.domain.model.WalkLocation
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -59,43 +61,45 @@ class LocationProvider @Inject constructor(
      * Request a single location update.
      * @return WalkLocation with lat/lng, or throws exception on failure
      */
-    suspend fun requestSingleLocation(): WalkLocation = suspendCancellableCoroutine { continuation ->
-        if (!hasLocationPermission()) {
-            continuation.resumeWithException(
-                SecurityException("Permission de localisation non accordée")
-            )
-            return@suspendCancellableCoroutine
-        }
-
-        try {
-            @Suppress("MissingPermission")
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener { location: Location? ->
-                    if (location != null) {
-                        continuation.resume(
-                            WalkLocation(
-                                lat = location.latitude,
-                                lng = location.longitude,
-                                address = ""
-                            )
-                        )
-                    } else {
-                        // No cached location, request fresh one
-                        requestFreshLocation(continuation)
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    if (continuation.isActive) {
-                        continuation.resumeWithException(
-                            Exception("Erreur de géolocalisation: ${exception.message}")
-                        )
-                    }
-                }
-        } catch (e: Exception) {
-            if (continuation.isActive) {
+    suspend fun requestSingleLocation(): WalkLocation = withTimeout(LOCATION_TIMEOUT_MS + 5000) {
+        suspendCancellableCoroutine { continuation ->
+            if (!hasLocationPermission()) {
                 continuation.resumeWithException(
-                    Exception("Erreur de géolocalisation: ${e.message}")
+                    SecurityException("Permission de localisation non accordée")
                 )
+                return@suspendCancellableCoroutine
+            }
+
+            try {
+                @Suppress("MissingPermission")
+                fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location: Location? ->
+                        if (location != null && continuation.isActive) {
+                            continuation.resume(
+                                WalkLocation(
+                                    lat = location.latitude,
+                                    lng = location.longitude,
+                                    address = ""
+                                )
+                            )
+                        } else if (continuation.isActive) {
+                            // No cached location, request fresh one
+                            requestFreshLocation(continuation)
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        if (continuation.isActive) {
+                            continuation.resumeWithException(
+                                Exception("Erreur de géolocalisation: ${exception.message}")
+                            )
+                        }
+                    }
+            } catch (e: Exception) {
+                if (continuation.isActive) {
+                    continuation.resumeWithException(
+                        Exception("Erreur de géolocalisation: ${e.message}")
+                    )
+                }
             }
         }
     }
@@ -110,9 +114,14 @@ class LocationProvider @Inject constructor(
             .setMaxUpdates(1)
             .build()
 
-        val callback = object : LocationCallback() {
+        var callback: LocationCallback? = null
+        val handler = Handler(Looper.getMainLooper())
+        var timeoutRunnable: Runnable? = null
+
+        callback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
-                fusedLocationClient.removeLocationUpdates(this)
+                callback?.let { fusedLocationClient.removeLocationUpdates(it) }
+                timeoutRunnable?.let { handler.removeCallbacks(it) }
                 val location = result.lastLocation
                 if (location != null && continuation.isActive) {
                     continuation.resume(
@@ -122,15 +131,45 @@ class LocationProvider @Inject constructor(
                             address = ""
                         )
                     )
+                } else if (continuation.isActive) {
+                    continuation.resumeWithException(
+                        Exception("Impossible d'obtenir la localisation")
+                    )
                 }
             }
         }
 
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            callback,
-            Looper.getMainLooper()
-        )
+        // Set up timeout
+        timeoutRunnable = Runnable {
+            callback?.let { fusedLocationClient.removeLocationUpdates(it) }
+            if (continuation.isActive) {
+                continuation.resumeWithException(
+                    Exception("Timeout: La localisation n'a pas pu être obtenue dans les délais")
+                )
+            }
+        }
+        handler.postDelayed(timeoutRunnable, LOCATION_TIMEOUT_MS)
+
+        // Cleanup on cancellation
+        continuation.invokeOnCancellation {
+            callback?.let { fusedLocationClient.removeLocationUpdates(it) }
+            timeoutRunnable?.let { handler.removeCallbacks(it) }
+        }
+
+        try {
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                callback,
+                Looper.getMainLooper()
+            )
+        } catch (e: Exception) {
+            timeoutRunnable?.let { handler.removeCallbacks(it) }
+            if (continuation.isActive) {
+                continuation.resumeWithException(
+                    Exception("Erreur lors de la demande de localisation: ${e.message}")
+                )
+            }
+        }
     }
 
     /**

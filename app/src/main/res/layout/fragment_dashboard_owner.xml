@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light">
+    android:background="@color/background_light"
+    tools:context="www.com.petsitternow_app.ui.dashboard.DashboardActivity">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -27,7 +29,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Bonjour ! 👋"
+                    android:text="@string/greeting_dashboard"
                     android:textSize="28sp"
                     android:textStyle="bold"
                     android:textColor="@color/white" />
@@ -35,7 +37,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Bienvenue sur PetSitterNow"
+                    android:text="@string/welcome_subtitle"
                     android:textSize="16sp"
                     android:textColor="#B3FFFFFF"
                     android:layout_marginTop="4dp" />
@@ -45,7 +47,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="48dp"
                     android:layout_marginTop="20dp"
-                    android:text="  Ajouter un chien"
+                    android:text="@string/btn_add_pet"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/primary"
@@ -58,9 +60,10 @@
 
             </LinearLayout>
 
-            <!-- Walk Status Card (ComposeView) -->
-            <androidx.compose.ui.platform.ComposeView
-                android:id="@+id/composeViewWalkStatus"
+            <!-- Walk Status Card -->
+            <include
+                android:id="@+id/walkStatusCard"
+                layout="@layout/item_walk_status_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
@@ -84,7 +87,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Mes compagnons"
+                        android:text="@string/label_my_pets"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary" />
@@ -118,14 +121,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🐕"
+                        android:text="@string/no_pets_emoji"
                         android:textSize="48sp" />
 
                     <TextView
                         android:id="@+id/tvNoPets"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Aucun compagnon enregistré"
+                        android:text="@string/no_pets_title"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_secondary"
@@ -134,7 +137,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Ajoutez votre premier chien pour commencer"
+                        android:text="@string/no_pets_subtitle"
                         android:textSize="14sp"
                         android:textColor="@color/text_muted"
                         android:layout_marginTop="4dp"
@@ -167,13 +170,13 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="✨"
+                                android:text="@string/how_it_works_emoji"
                                 android:textSize="24sp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Comment ça marche ?"
+                                android:text="@string/how_it_works_title"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/text_primary"
@@ -190,7 +193,7 @@
                             <TextView
                                 android:layout_width="44dp"
                                 android:layout_height="44dp"
-                                android:text="1"
+                                android:text="@string/step_1"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/white"
@@ -207,7 +210,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Ajoutez votre chien"
+                                    android:text="@string/step_1_title"
                                     android:textSize="15sp"
                                     android:textStyle="bold"
                                     android:textColor="@color/text_primary" />
@@ -215,7 +218,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Créez le profil de votre compagnon"
+                                    android:text="@string/step_1_subtitle"
                                     android:textSize="13sp"
                                     android:textColor="@color/text_secondary"
                                     android:layout_marginTop="2dp" />
@@ -233,7 +236,7 @@
                             <TextView
                                 android:layout_width="44dp"
                                 android:layout_height="44dp"
-                                android:text="2"
+                                android:text="@string/step_2"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/white"
@@ -250,7 +253,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Réservez une promenade"
+                                    android:text="@string/step_2_title"
                                     android:textSize="15sp"
                                     android:textStyle="bold"
                                     android:textColor="@color/text_primary" />
@@ -258,7 +261,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Choisissez un petsitter certifié"
+                                    android:text="@string/step_2_subtitle"
                                     android:textSize="13sp"
                                     android:textColor="@color/text_secondary"
                                     android:layout_marginTop="2dp" />
@@ -275,7 +278,7 @@
                             <TextView
                                 android:layout_width="44dp"
                                 android:layout_height="44dp"
-                                android:text="3"
+                                android:text="@string/step_3"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/white"
@@ -292,7 +295,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Profitez tranquillement"
+                                    android:text="@string/step_3_title"
                                     android:textSize="15sp"
                                     android:textStyle="bold"
                                     android:textColor="@color/text_primary" />
@@ -300,7 +303,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Votre chien est entre de bonnes mains"
+                                    android:text="@string/step_3_subtitle"
                                     android:textSize="13sp"
                                     android:textColor="@color/text_secondary"
                                     android:layout_marginTop="2dp" />
@@ -319,12 +322,18 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Walk FAB (ComposeView) -->
-    <androidx.compose.ui.platform.ComposeView
-        android:id="@+id/composeViewWalkFab"
+    <!-- Walk FAB -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fabRequestWalk"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp" />
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="88dp"
+        android:text="@string/btn_walk"
+        android:textColor="@color/white"
+        app:backgroundTint="@color/primary"
+        app:elevation="16dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
