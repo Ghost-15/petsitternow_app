@@ -80,8 +80,9 @@ class PetsitterMissionsViewModel @Inject constructor(
                         isOnline = profile?.isOnline ?: false
                     )
 
-                    // Start/stop location updates based on online status
-                    if (profile?.isOnline == true) {
+                    // Start/stop location updates based on online status OR active mission
+                    val hasActiveMission = _uiState.value.activeMission != null
+                    if (profile?.isOnline == true || hasActiveMission) {
                         startLocationUpdates()
                     } else {
                         stopLocationUpdates()
@@ -119,6 +120,7 @@ class PetsitterMissionsViewModel @Inject constructor(
             petsitterRepository.observeActiveMission(userId)
                 .catch { /* Ignore */ }
                 .collectLatest { mission ->
+                    android.util.Log.d("PetsitterVM", "observeActiveMission: mission=${mission?.id}, status=${mission?.status}")
                     _uiState.value = _uiState.value.copy(
                         activeMission = mission
                     )
@@ -126,9 +128,15 @@ class PetsitterMissionsViewModel @Inject constructor(
                     // Observe ActiveWalk data for timer when we have an active mission
                     if (mission != null) {
                         observeActiveWalkData(mission.id)
+                        // Start location updates for distance calculation during mission
+                        startLocationUpdates()
                     } else {
                         stopActiveWalkObservation()
                         stopWalkTimer()
+                        // Stop location updates if not online and no mission
+                        if (!_uiState.value.isOnline) {
+                            stopLocationUpdates()
+                        }
                     }
                 }
         }
@@ -225,12 +233,14 @@ class PetsitterMissionsViewModel @Inject constructor(
                 .collectLatest { result ->
                     result.fold(
                         onSuccess = {
+                            android.util.Log.d("PetsitterVM", "acceptMission success, clearing pendingMission")
                             _uiState.value = _uiState.value.copy(
                                 isLoading = false,
                                 pendingMission = null
                             )
                         },
                         onFailure = { e ->
+                            android.util.Log.e("PetsitterVM", "acceptMission failed: ${e.message}")
                             _uiState.value = _uiState.value.copy(
                                 isLoading = false,
                                 error = e.message ?: "Erreur"
@@ -380,6 +390,13 @@ class PetsitterMissionsViewModel @Inject constructor(
                             .collectLatest { /* Updated */ }
                     }
 
+                    // Update location in active_walks for owner to see during active mission
+                    _uiState.value.activeMission?.let { mission ->
+                        petsitterRepository.updateLocationForActiveWalk(mission.id, location.lat, location.lng)
+                            .catch { /* Ignore */ }
+                            .collectLatest { /* Updated */ }
+                    }
+
                     // Calculate distance to owner if in active mission
                     _uiState.value.activeMission?.location?.let { ownerLocation ->
                         val distance = www.com.petsitternow_app.util.DistanceCalculator
@@ -388,10 +405,13 @@ class PetsitterMissionsViewModel @Inject constructor(
                                 ownerLocation.lat, ownerLocation.lng
                             )
                         val isWithinRange = distance <= www.com.petsitternow_app.util.DistanceCalculator.COMPLETION_DISTANCE_THRESHOLD_METERS
+                        android.util.Log.d("PetsitterVM", "Distance to owner: ${distance.toInt()}m, isWithinRange: $isWithinRange, petsitter: (${location.lat}, ${location.lng}), owner: (${ownerLocation.lat}, ${ownerLocation.lng})")
                         _uiState.value = _uiState.value.copy(
                             distanceToOwner = distance,
                             isWithinCompletionRange = isWithinRange
                         )
+                    } ?: run {
+                        android.util.Log.w("PetsitterVM", "No owner location found in active mission")
                     }
                 }
         }

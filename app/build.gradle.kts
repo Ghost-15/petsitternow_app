@@ -63,6 +63,7 @@ dependencies {
     implementation("com.google.firebase:firebase-functions")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-config")
     implementation("javax.inject:javax.inject:1")
 
     // Hilt

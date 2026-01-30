@@ -1,7 +1,9 @@
 package www.com.petsitternow_app.ui.petsitter
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -14,20 +16,30 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
+import www.com.petsitternow_app.domain.model.PetsitterMission
 import www.com.petsitternow_app.domain.model.WalkStatus
+import www.com.petsitternow_app.domain.navigation.RouteProtectionResult
+import www.com.petsitternow_app.domain.navigation.RouteProtectionManager
 import www.com.petsitternow_app.ui.walk.WalkTrackingViewModel
 import www.com.petsitternow_app.view.map.WalkTrackingMapView
+import javax.inject.Inject
 
 /**
  * Fragment displaying missions for petsitters.
  */
 @AndroidEntryPoint
 class MissionsFragment : Fragment(R.layout.fragment_missions) {
+
+    @Inject
+    lateinit var routeProtectionManager: RouteProtectionManager
 
     private val viewModel: PetsitterMissionsViewModel by viewModels()
     private val walkTrackingViewModel: WalkTrackingViewModel by viewModels()
@@ -45,6 +57,7 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
     private var tvOwnerName: TextView? = null
     private var tvOwnerInitial: TextView? = null
     private var tvPetNames: TextView? = null
+    private var btnOpenMaps: MaterialButton? = null
     private var btnStartWalk: MaterialButton? = null
     private var btnMarkReturning: MaterialButton? = null
     private var btnCompleteMission: MaterialButton? = null
@@ -59,6 +72,10 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
     private var mapContainer: androidx.cardview.widget.CardView? = null
     private var walkTrackingMapView: WalkTrackingMapView? = null
 
+    // Pending mission dialog: show only once per requestId
+    private var lastShownPendingRequestId: String? = null
+    private var pendingMissionDialog: androidx.appcompat.app.AlertDialog? = null
+
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -71,10 +88,23 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initViews(view)
-        setupOnlineToggle()
-        setupMissionButtons()
-        observeState()
+        viewLifecycleOwner.lifecycleScope.launch {
+            when (routeProtectionManager.protectPetsitterRoute()) {
+                RouteProtectionResult.Allowed -> {
+                    initViews(view)
+                    setupOnlineToggle()
+                    setupMissionButtons()
+                    observeState()
+                }
+                RouteProtectionResult.FeatureDisabled -> {
+                    Snackbar.make(view, R.string.feature_temporarily_unavailable, Snackbar.LENGTH_LONG).show()
+                    findNavController().popBackStack()
+                }
+                RouteProtectionResult.WrongRole, RouteProtectionResult.NotAuthenticated -> {
+                    findNavController().popBackStack()
+                }
+            }
+        }
     }
 
     private fun initViews(view: View) {
@@ -93,6 +123,7 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
             tvOwnerName = activeMissionView.findViewById(R.id.tvOwnerName)
             tvOwnerInitial = activeMissionView.findViewById(R.id.tvOwnerInitial)
             tvPetNames = activeMissionView.findViewById(R.id.tvPetNames)
+            btnOpenMaps = activeMissionView.findViewById(R.id.btnOpenMaps)
             btnStartWalk = activeMissionView.findViewById(R.id.btnStartWalk)
             btnMarkReturning = activeMissionView.findViewById(R.id.btnMarkReturning)
             btnCompleteMission = activeMissionView.findViewById(R.id.btnCompleteMission)
@@ -113,8 +144,6 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
             )
         }
         mapContainer?.addView(walkTrackingMapView)
-
-        // Mission notification is not inline in this simple version - we'll handle via dialog
     }
 
     private fun setupOnlineToggle() {
@@ -128,9 +157,28 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
     }
 
     private fun setupMissionButtons() {
+        btnOpenMaps?.setOnClickListener { openMapsWithOwnerAddress() }
         btnStartWalk?.setOnClickListener { viewModel.startWalk() }
         btnMarkReturning?.setOnClickListener { viewModel.markReturning() }
         btnCompleteMission?.setOnClickListener { viewModel.completeMission() }
+    }
+
+    private fun openMapsWithOwnerAddress() {
+        val mission = viewModel.uiState.value.activeMission ?: return
+        val location = mission.location
+        val uri = when {
+            !location.address.isNullOrBlank() -> Uri.parse("geo:0,0?q=" + Uri.encode(location.address))
+            location.lat != 0.0 && location.lng != 0.0 -> Uri.parse("geo:${location.lat},${location.lng}?q=${location.lat},${location.lng}")
+            else -> return
+        }
+        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+            setPackage("com.google.android.apps.maps")
+        }
+        if (intent.resolveActivity(requireContext().packageManager) != null) {
+            startActivity(intent)
+        } else {
+            startActivity(Intent(Intent.ACTION_VIEW, uri))
+        }
     }
 
     private fun observeState() {
@@ -168,6 +216,11 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
                     if (trackingState.formattedTime.isNotEmpty()) {
                         tvMissionTimer?.text = trackingState.formattedTime
                     }
+                    
+                    // Update buttons based on RTDB status
+                    activeWalk?.status?.let { rtdbStatus ->
+                        updateMissionStatusUI(rtdbStatus, viewModel.uiState.value)
+                    }
                 }
             }
         }
@@ -187,9 +240,16 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
                         switchOnline?.isEnabled = true
                     }
 
-                    // Handle pending mission - show dialog if needed
+                    // Handle pending mission - show dialog once per mission
                     state.pendingMission?.let { mission ->
-                        // TODO: Show mission notification dialog
+                        if (mission.requestId != lastShownPendingRequestId && !mission.isExpired()) {
+                            lastShownPendingRequestId = mission.requestId
+                            showPendingMissionDialog(mission, state.missionCountdown)
+                        }
+                    } ?: run {
+                        lastShownPendingRequestId = null
+                        pendingMissionDialog?.dismiss()
+                        pendingMissionDialog = null
                     }
 
                     // Handle active mission
@@ -201,48 +261,29 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
                         // Setup walk tracking for map
                         walkTrackingViewModel.setRequestId(mission.id)
 
+                        // Use RTDB status if available, otherwise use Firestore status
+                        val rtdbStatus = walkTrackingViewModel.uiState.value.activeWalk?.status
+                        val effectiveStatus = rtdbStatus ?: mission.status
+                        
                         // Update mission status UI
-                        when (mission.status) {
-                            WalkStatus.ASSIGNED -> {
-                                tvMissionStatus?.text = "Mission assignée"
-                                viewMissionStatusBackground?.setBackgroundResource(R.drawable.bg_walk_status_assigned)
-                                ivMissionStatusIcon?.setImageResource(R.drawable.ic_check_circle)
-                                btnStartWalk?.visibility = View.VISIBLE
-                                btnMarkReturning?.visibility = View.GONE
-                                btnCompleteMission?.visibility = View.GONE
-                            }
-                            WalkStatus.WALKING -> {
-                                tvMissionStatus?.text = "Promenade en cours"
-                                viewMissionStatusBackground?.setBackgroundResource(R.drawable.bg_walk_status_walking)
-                                ivMissionStatusIcon?.setImageResource(R.drawable.ic_walk)
-                                // Timer text is updated by walkTrackingViewModel observer
-                                tvMissionTimer?.visibility = View.VISIBLE
-                                btnStartWalk?.visibility = View.GONE
-                                btnMarkReturning?.visibility = View.VISIBLE
-                                btnCompleteMission?.visibility = View.GONE
-                            }
-                            WalkStatus.RETURNING -> {
-                                tvMissionStatus?.text = "Retour en cours"
-                                viewMissionStatusBackground?.setBackgroundResource(R.drawable.bg_walk_status_returning)
-                                ivMissionStatusIcon?.setImageResource(R.drawable.ic_home)
-                                // Timer text is updated by walkTrackingViewModel observer
-                                tvMissionTimer?.visibility = View.VISIBLE
-                                state.distanceToOwner?.let { distance ->
-                                    tvMissionDistance?.text = "${distance.toInt()}m"
-                                    tvMissionDistance?.visibility = View.VISIBLE
-                                }
-                                btnStartWalk?.visibility = View.GONE
-                                btnMarkReturning?.visibility = View.GONE
-                                btnCompleteMission?.visibility = View.VISIBLE
-                                btnCompleteMission?.isEnabled = state.isWithinCompletionRange
-                            }
-                            else -> {}
-                        }
+                        updateMissionStatusUI(effectiveStatus, state)
 
-                        // Update owner info
-                        tvOwnerName?.text = "Propriétaire"
-                        tvOwnerInitial?.text = "P"
-                        tvPetNames?.text = mission.petIds.joinToString(", ")
+                        // Update owner info from mission data
+                        val ownerName = mission.owner?.let { owner ->
+                            val fullName = "${owner.firstName} ${owner.lastName}".trim()
+                            fullName.ifEmpty { owner.name.ifEmpty { "Propriétaire" } }
+                        } ?: "Propriétaire"
+                        tvOwnerName?.text = ownerName
+                        
+                        val initial = mission.owner?.firstName?.firstOrNull()
+                            ?: mission.owner?.name?.firstOrNull()
+                            ?: 'P'
+                        tvOwnerInitial?.text = initial.uppercase().toString()
+                        
+                        // Use pet names from owner info if available, otherwise show count
+                        val petNamesText = mission.owner?.petNames?.takeIf { it.isNotEmpty() }?.joinToString(", ")
+                            ?: "${mission.petIds.size} chien${if (mission.petIds.size > 1) "s" else ""}"
+                        tvPetNames?.text = petNamesText
                     } ?: run {
                         layoutActiveMission?.visibility = View.GONE
 
@@ -258,6 +299,83 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
                 }
             }
         }
+    }
+
+    private fun updateMissionStatusUI(status: WalkStatus, state: PetsitterMissionsUiState) {
+        when (status) {
+            WalkStatus.ASSIGNED, WalkStatus.GOING_TO_OWNER -> {
+                tvMissionStatus?.text = "Mission assignée"
+                viewMissionStatusBackground?.setBackgroundResource(R.drawable.bg_walk_status_assigned)
+                ivMissionStatusIcon?.setImageResource(R.drawable.ic_check_circle)
+                btnStartWalk?.visibility = View.VISIBLE
+                btnMarkReturning?.visibility = View.GONE
+                btnCompleteMission?.visibility = View.GONE
+            }
+            WalkStatus.WALKING, WalkStatus.IN_PROGRESS -> {
+                tvMissionStatus?.text = "Promenade en cours"
+                viewMissionStatusBackground?.setBackgroundResource(R.drawable.bg_walk_status_walking)
+                ivMissionStatusIcon?.setImageResource(R.drawable.ic_walk)
+                tvMissionTimer?.visibility = View.VISIBLE
+                btnStartWalk?.visibility = View.GONE
+                btnMarkReturning?.visibility = View.VISIBLE
+                btnCompleteMission?.visibility = View.GONE
+            }
+            WalkStatus.RETURNING -> {
+                tvMissionStatus?.text = "Retour en cours"
+                viewMissionStatusBackground?.setBackgroundResource(R.drawable.bg_walk_status_returning)
+                ivMissionStatusIcon?.setImageResource(R.drawable.ic_home)
+                tvMissionTimer?.visibility = View.VISIBLE
+                state.distanceToOwner?.let { distance ->
+                    tvMissionDistance?.text = "${distance.toInt()}m"
+                    tvMissionDistance?.visibility = View.VISIBLE
+                }
+                btnStartWalk?.visibility = View.GONE
+                btnMarkReturning?.visibility = View.GONE
+                btnCompleteMission?.visibility = View.VISIBLE
+                btnCompleteMission?.isEnabled = state.isWithinCompletionRange
+            }
+            else -> {}
+        }
+    }
+    
+    private fun showPendingMissionDialog(mission: PetsitterMission, countdown: Int) {
+        pendingMissionDialog?.dismiss()
+        val petNamesText = if (mission.petNames.isNotEmpty()) {
+            mission.petNames.joinToString(", ")
+        } else {
+            getString(R.string.pet_default_name)
+        }
+        val distanceText = if (mission.distance > 0) {
+            "%.1f km".format(mission.distance)
+        } else {
+            "—"
+        }
+        val message = getString(
+            R.string.mission_notification_dialog_message,
+            petNamesText,
+            mission.duration,
+            distanceText,
+            countdown
+        )
+        pendingMissionDialog = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.mission_notification_dialog_title)
+            .setMessage(message)
+            .setNegativeButton(R.string.decline) { dialog, _ ->
+                viewModel.declineMission()
+                dialog.dismiss()
+                pendingMissionDialog = null
+            }
+            .setPositiveButton(R.string.accept) { dialog, _ ->
+                viewModel.acceptMission()
+                dialog.dismiss()
+                pendingMissionDialog = null
+            }
+            .setCancelable(true)
+            .setOnCancelListener {
+                viewModel.declineMission()
+                pendingMissionDialog = null
+            }
+            .show()
     }
 
     private fun requestLocationPermissionAndGoOnline() {
@@ -295,6 +413,9 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        pendingMissionDialog?.dismiss()
+        pendingMissionDialog = null
+        lastShownPendingRequestId = null
         switchOnline = null
         tvOnlineStatus = null
         progressToggle = null
@@ -305,6 +426,7 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
         tvOwnerName = null
         tvOwnerInitial = null
         tvPetNames = null
+        btnOpenMaps = null
         btnStartWalk = null
         btnMarkReturning = null
         btnCompleteMission = null

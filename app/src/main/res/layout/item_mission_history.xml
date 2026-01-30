@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
@@ -86,7 +87,8 @@
                     android:id="@+id/tvOwnerName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Marie Martin"
+                    android:text=""
+                    tools:text="Marie Martin"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary" />
@@ -95,7 +97,8 @@
                     android:id="@+id/tvPetNames"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Max, Bella"
+                    android:text=""
+                    tools:text="Max, Bella"
                     android:textSize="13sp"
                     android:textColor="@color/text_secondary"
                     android:drawableStart="@drawable/ic_pets"
@@ -162,36 +165,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="28m 15s"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary" />
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="@color/border" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Distance"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_muted" />
-
-                <TextView
-                    android:id="@+id/tvDistance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1.2 km"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary" />

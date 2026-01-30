@@ -124,4 +124,14 @@ interface PetsitterRepository {
      * @return Flow emitting Result success or failure
      */
     fun cancelMission(requestId: String): Flow<Result<Unit>>
+
+    /**
+     * Update petsitter location in active_walks for owner to see.
+     *
+     * @param requestId The walk request ID
+     * @param lat Latitude
+     * @param lng Longitude
+     * @return Flow emitting Result success or failure
+     */
+    fun updateLocationForActiveWalk(requestId: String, lat: Double, lng: Double): Flow<Result<Unit>>
 }

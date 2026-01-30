@@ -46,4 +46,14 @@
     <string name="offline_state_title">Vous êtes hors ligne</string>
     <string name="offline_state_subtitle">Activez le mode en ligne pour recevoir des demandes de promenade</string>
 
+    <!-- Route protection -->
+    <string name="feature_temporarily_unavailable">Fonctionnalité temporairement indisponible</string>
+
+    <!-- Mission notification dialog -->
+    <string name="mission_notification_dialog_title">Nouvelle mission</string>
+    <string name="mission_notification_dialog_message">Promenade avec %1$s\nDurée : %2$s min\nDistance : %3$s\nTemps restant : %4$d s</string>
+    <string name="accept">Accepter</string>
+    <string name="decline">Refuser</string>
+    <string name="pet_default_name">Chien</string>
+
 </resources>

@@ -9,9 +9,4 @@
         android:name="www.com.petsitternow_app.view.fragment.DashboardFragment"
         android:label="fragment_dashboard"
         tools:layout="@layout/fragment_dashboard" />
-    <fragment
-        android:id="@+id/navigation_Message"
-        android:name="www.com.petsitternow_app.view.fragment.MessageFragment"
-        android:label="fragment_message"
-        tools:layout="@layout/fragment_message" />
 </navigation>

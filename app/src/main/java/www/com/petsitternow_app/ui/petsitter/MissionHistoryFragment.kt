@@ -9,19 +9,27 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
+import www.com.petsitternow_app.domain.navigation.RouteProtectionManager
+import www.com.petsitternow_app.domain.navigation.RouteProtectionResult
 import www.com.petsitternow_app.view.adapter.MissionHistoryAdapter
+import javax.inject.Inject
 
 /**
  * Fragment displaying mission history for petsitters.
  */
 @AndroidEntryPoint
 class MissionHistoryFragment : Fragment(R.layout.fragment_mission_history) {
+
+    @Inject
+    lateinit var routeProtectionManager: RouteProtectionManager
 
     private val viewModel: MissionHistoryViewModel by viewModels()
 
@@ -33,17 +41,28 @@ class MissionHistoryFragment : Fragment(R.layout.fragment_mission_history) {
     private var tvError: TextView? = null
     private var btnRetry: View? = null
     private var tvTotalMissions: TextView? = null
-    private var tvTotalEarnings: TextView? = null
-    private var tvTotalDistance: TextView? = null
 
     private var missionHistoryAdapter: MissionHistoryAdapter? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initViews(view)
-        setupRecyclerView()
-        setupSwipeRefresh()
-        observeState()
+        viewLifecycleOwner.lifecycleScope.launch {
+            when (routeProtectionManager.protectPetsitterRoute()) {
+                RouteProtectionResult.Allowed -> {
+                    initViews(view)
+                    setupRecyclerView()
+                    setupSwipeRefresh()
+                    observeState()
+                }
+                RouteProtectionResult.FeatureDisabled -> {
+                    Snackbar.make(view, R.string.feature_temporarily_unavailable, Snackbar.LENGTH_LONG).show()
+                    findNavController().popBackStack()
+                }
+                RouteProtectionResult.WrongRole, RouteProtectionResult.NotAuthenticated -> {
+                    findNavController().popBackStack()
+                }
+            }
+        }
     }
 
     private fun initViews(view: View) {
@@ -55,8 +74,6 @@ class MissionHistoryFragment : Fragment(R.layout.fragment_mission_history) {
         tvError = view.findViewById(R.id.tvError)
         btnRetry = view.findViewById(R.id.btnRetry)
         tvTotalMissions = view.findViewById(R.id.tvTotalMissions)
-        tvTotalEarnings = view.findViewById(R.id.tvTotalEarnings)
-        tvTotalDistance = view.findViewById(R.id.tvTotalDistance)
 
         btnRetry?.setOnClickListener { viewModel.refresh() }
     }
@@ -111,16 +128,6 @@ class MissionHistoryFragment : Fragment(R.layout.fragment_mission_history) {
 
                             // Update stats
                             tvTotalMissions?.text = state.missions.size.toString()
-
-                            // Calculate total earnings (assuming 10€ per 30min)
-                            val totalEarnings = state.missions.sumOf { mission ->
-                                ((mission.duration.toIntOrNull() ?: 30) / 30) * 10
-                            }
-                            tvTotalEarnings?.text = "€$totalEarnings"
-
-                            // Calculate total distance (placeholder)
-                            val totalDistance = state.missions.size * 2.5 // Rough estimate
-                            tvTotalDistance?.text = String.format("%.1f km", totalDistance)
                         }
                     }
                 }
@@ -138,8 +145,6 @@ class MissionHistoryFragment : Fragment(R.layout.fragment_mission_history) {
         tvError = null
         btnRetry = null
         tvTotalMissions = null
-        tvTotalEarnings = null
-        tvTotalDistance = null
         missionHistoryAdapter = null
     }
 }

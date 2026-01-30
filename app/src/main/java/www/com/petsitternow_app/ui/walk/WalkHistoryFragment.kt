@@ -9,19 +9,27 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
+import www.com.petsitternow_app.domain.navigation.RouteProtectionManager
+import www.com.petsitternow_app.domain.navigation.RouteProtectionResult
 import www.com.petsitternow_app.view.adapter.WalkHistoryAdapter
+import javax.inject.Inject
 
 /**
  * Fragment displaying walk history for owners.
  */
 @AndroidEntryPoint
 class WalkHistoryFragment : Fragment(R.layout.fragment_walk_history) {
+
+    @Inject
+    lateinit var routeProtectionManager: RouteProtectionManager
 
     private val viewModel: WalkHistoryViewModel by viewModels()
 
@@ -37,10 +45,23 @@ class WalkHistoryFragment : Fragment(R.layout.fragment_walk_history) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initViews(view)
-        setupRecyclerView()
-        setupSwipeRefresh()
-        observeState()
+        viewLifecycleOwner.lifecycleScope.launch {
+            when (routeProtectionManager.protectOwnerRoute()) {
+                RouteProtectionResult.Allowed -> {
+                    initViews(view)
+                    setupRecyclerView()
+                    setupSwipeRefresh()
+                    observeState()
+                }
+                RouteProtectionResult.FeatureDisabled -> {
+                    Snackbar.make(view, R.string.feature_temporarily_unavailable, Snackbar.LENGTH_LONG).show()
+                    findNavController().popBackStack()
+                }
+                RouteProtectionResult.WrongRole, RouteProtectionResult.NotAuthenticated -> {
+                    findNavController().popBackStack()
+                }
+            }
+        }
     }
 
     private fun initViews(view: View) {

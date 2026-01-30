@@ -43,7 +43,6 @@ class MissionHistoryAdapter(
         private val tvPetNames: TextView = itemView.findViewById(R.id.tvPetNames)
         private val tvDuration: TextView = itemView.findViewById(R.id.tvDuration)
         private val tvActualDuration: TextView = itemView.findViewById(R.id.tvActualDuration)
-        private val tvDistance: TextView = itemView.findViewById(R.id.tvDistance)
 
         fun bind(mission: WalkRequest) {
             // Date
@@ -102,9 +101,6 @@ class MissionHistoryAdapter(
                 "-"
             }
             tvActualDuration.text = actualDuration
-
-            // Distance (placeholder - would need actual tracking data)
-            tvDistance.text = "-"
 
             itemView.setOnClickListener {
                 onClick(mission)
