@@ -2,8 +2,20 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.Petsitternow_app" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryContainer">@color/primary_light</item>
+        <item name="colorOnPrimaryContainer">@color/primary</item>
+        <!-- Status bar styling -->
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <style name="Theme.Petsitternow_app" parent="Base.Theme.Petsitternow_app" />
+
+    <!-- Bottom Navigation Active Indicator Style -->
+    <style name="BottomNavActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/primary_light</item>
+        <item name="android:width">64dp</item>
+        <item name="android:height">32dp</item>
+    </style>
 </resources>

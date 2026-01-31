@@ -1,6 +1,63 @@
 <resources>
-    <string name="app_name">petsitternow_app</string>
+    <string name="app_name">PetSitterNow</string>
     <string name="web_client">756871375939-c2s573urqn62q3br2g56nomubp8b7pt6.apps.googleusercontent.com</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    
+    <!-- Dashboard Owner -->
+    <string name="greeting_dashboard">Bonjour ! 👋</string>
+    <string name="welcome_subtitle">Bienvenue sur PetSitterNow</string>
+    <string name="btn_add_pet">  Ajouter un chien</string>
+    <string name="label_my_pets">Mes compagnons</string>
+    <string name="no_pets_emoji">🐕</string>
+    <string name="no_pets_title">Aucun compagnon enregistré</string>
+    <string name="no_pets_subtitle">Ajoutez votre premier chien pour commencer</string>
+    <string name="how_it_works_emoji">✨</string>
+    <string name="how_it_works_title">Comment ça marche ?</string>
+    <string name="step_1">1</string>
+    <string name="step_1_title">Ajoutez votre chien</string>
+    <string name="step_1_subtitle">Créez le profil de votre compagnon</string>
+    <string name="step_2">2</string>
+    <string name="step_2_title">Réservez une promenade</string>
+    <string name="step_2_subtitle">Choisissez un petsitter certifié</string>
+    <string name="step_3">3</string>
+    <string name="step_3_title">Profitez tranquillement</string>
+    <string name="step_3_subtitle">Votre chien est entre de bonnes mains</string>
+    <string name="btn_walk">🦮 Lancer une promenade</string>
+
+    <!-- Missions & History -->
+    <string name="title_missions">Missions</string>
+    <string name="subtitle_missions">Gérez vos promenades</string>
+    <string name="title_history">Historique</string>
+    <string name="subtitle_history">Vos missions passées</string>
+    <string name="label_statistics">Statistiques</string>
+    <string name="stat_missions">Missions</string>
+    <string name="stat_earnings">Gains</string>
+    <string name="stat_distance">Distance</string>
+    <string name="error_occurred">Une erreur est survenue</string>
+    <string name="btn_retry">Réessayer</string>
+    <string name="empty_history_title">Aucune mission</string>
+    <string name="empty_history_subtitle">Vos missions apparaîtront ici</string>
+    <string name="stat_walks">Promenades</string>
+    <string name="subtitle_history_owner">Vos promenades passées</string>
+    <string name="empty_history_title_owner">Aucune promenade</string>
+    <string name="empty_history_subtitle_owner">Vos promenades apparaîtront ici</string>
+
+    <!-- Statuses -->
+    <string name="status_offline">Hors ligne</string>
+    <string name="status_online">En ligne</string>
+    <string name="offline_subtitle">Activez pour recevoir des missions</string>
+    <string name="online_waiting_title">En attente de missions</string>
+    <string name="online_waiting_subtitle">Vous recevrez une notification dès qu\'une mission sera disponible à proximité</string>
+    <string name="offline_state_title">Vous êtes hors ligne</string>
+    <string name="offline_state_subtitle">Activez le mode en ligne pour recevoir des demandes de promenade</string>
+
+    <!-- Route protection -->
+    <string name="feature_temporarily_unavailable">Fonctionnalité temporairement indisponible</string>
+
+    <!-- Mission notification dialog -->
+    <string name="mission_notification_dialog_title">Nouvelle mission</string>
+    <string name="mission_notification_dialog_message">Promenade avec %1$s\nDurée : %2$s min\nDistance : %3$s\nTemps restant : %4$d s</string>
+    <string name="accept">Accepter</string>
+    <string name="decline">Refuser</string>
+    <string name="pet_default_name">Chien</string>
+
 </resources>

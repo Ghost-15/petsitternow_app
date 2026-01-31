@@ -1,5 +1,6 @@
 package www.com.petsitternow_app.data.repository
 
+import android.util.Log
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -61,10 +62,15 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun getUserType(): String? {
         val user = auth.currentUser ?: return null
         return try {
-            val tokenResult = user.getIdToken(false).await()
+            // Force refresh to get latest custom claims (e.g. after onboarding)
+            val tokenResult = user.getIdToken(true).await()
             val claims = tokenResult.claims
-            claims["userType"] as? String
+            Log.d("AuthRepository", "Custom claims keys: ${claims?.keys?.joinToString() ?: "null"}")
+            val userType = claims["role"] as? String
+            Log.d("AuthRepository", "userType from claims (role): $userType")
+            userType
         } catch (e: Exception) {
+            Log.e("AuthRepository", "getUserType failed", e)
             null
         }
     }

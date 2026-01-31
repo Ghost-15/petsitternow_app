@@ -9,22 +9,31 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.catch
+import www.com.petsitternow_app.domain.model.PetsitterProfile
 import www.com.petsitternow_app.domain.repository.AuthRepository
+import www.com.petsitternow_app.domain.repository.FeatureFlagRepository
 import www.com.petsitternow_app.domain.repository.Pet
 import www.com.petsitternow_app.domain.repository.PetRepository
+import www.com.petsitternow_app.domain.repository.PetsitterRepository
 import javax.inject.Inject
 
 data class DashboardState(
     val isLoading: Boolean = true,
     val userType: String? = null,
     val pets: List<Pet> = emptyList(),
-    val error: String? = null
+    val petsitterProfile: PetsitterProfile? = null,
+    val error: String? = null,
+    val ownerPathEnabled: Boolean = true,
+    val petsitterPathEnabled: Boolean = true
 )
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val petRepository: PetRepository,
+    private val petsitterRepository: PetsitterRepository,
+    private val featureFlagRepository: FeatureFlagRepository,
     private val auth: FirebaseAuth
 ) : ViewModel() {
 
@@ -39,14 +48,23 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 authRepository.refreshToken()
+                featureFlagRepository.fetchAndActivate()
                 val userType = authRepository.getUserType()
-                Log.d("DashboardVM", "userType: $userType")
+                val ownerPathEnabled = featureFlagRepository.isOwnerPathEnabled()
+                val petsitterPathEnabled = featureFlagRepository.isPetsitterPathEnabled()
+                Log.d("DashboardVM", "userType: $userType (raw), ownerPath: $ownerPathEnabled, petsitterPath: $petsitterPathEnabled")
+                if (userType == null) {
+                    Log.w("DashboardVM", "getUserType() returned null - check Firebase custom claims for userType")
+                }
                 _state.value = _state.value.copy(
                     isLoading = false,
-                    userType = userType
+                    userType = userType,
+                    ownerPathEnabled = ownerPathEnabled,
+                    petsitterPathEnabled = petsitterPathEnabled
                 )
-                if (userType == "owner") {
-                    loadPets()
+                when (userType) {
+                    "owner" -> loadPets()
+                    "petsitter" -> observePetsitterProfile()
                 }
             } catch (e: Exception) {
                 Log.e("DashboardVM", "Error loading userType", e)
@@ -71,6 +89,17 @@ class DashboardViewModel @Inject constructor(
                     Log.e("DashboardVM", "getPets error", result.exceptionOrNull())
                 }
             }
+        }
+    }
+
+    private fun observePetsitterProfile() {
+        val userId = auth.currentUser?.uid ?: return
+        viewModelScope.launch {
+            petsitterRepository.observeProfile(userId)
+                .catch { e -> Log.e("DashboardVM", "observeProfile error", e) }
+                .collect { profile ->
+                    _state.value = _state.value.copy(petsitterProfile = profile)
+                }
         }
     }
 }
