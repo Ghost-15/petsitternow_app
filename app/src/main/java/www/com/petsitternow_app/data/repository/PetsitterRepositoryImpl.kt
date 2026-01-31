@@ -4,7 +4,6 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -131,7 +130,7 @@ class PetsitterRepositoryImpl @Inject constructor(
                     val ownerId = data?.get("ownerId") as? String ?: ""
                     
                     // Fetch pet names and owner name asynchronously
-                    kotlinx.coroutines.GlobalScope.launch {
+                    this@callbackFlow.launch {
                         val petNames = mutableListOf<String>()
                         for (petId in petIds) {
                             try {

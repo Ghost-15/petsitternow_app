@@ -1,5 +1,6 @@
 package www.com.petsitternow_app.data.datasource
 
+import android.util.Log
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -151,6 +152,7 @@ class WalkFirestoreDataSource @Inject constructor(
      * Observe walk history for an owner.
      */
     fun observeWalkHistory(ownerId: String): Flow<List<WalkRequest>> = callbackFlow {
+        Log.d("WalkFirestoreDS", "observeWalkHistory started for ownerId=$ownerId")
         val finalStatuses = listOf(
             WalkStatus.COMPLETED.value,
             WalkStatus.CANCELLED.value,
@@ -164,6 +166,7 @@ class WalkFirestoreDataSource @Inject constructor(
             .limit(HISTORY_LIMIT)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
+                    Log.e("WalkFirestoreDS", "observeWalkHistory error for ownerId=$ownerId", error)
                     trySend(emptyList())
                     return@addSnapshotListener
                 }
@@ -171,11 +174,14 @@ class WalkFirestoreDataSource @Inject constructor(
                 val requests = snapshot?.documents?.mapNotNull { doc ->
                     doc.data?.let { WalkRequest.fromMap(doc.id, it) }
                 } ?: emptyList()
-
+                Log.d("WalkFirestoreDS", "observeWalkHistory received ${requests.size} walks for ownerId=$ownerId")
                 trySend(requests)
             }
 
-        awaitClose { listener.remove() }
+        awaitClose {
+            Log.d("WalkFirestoreDS", "observeWalkHistory closed for ownerId=$ownerId")
+            listener.remove()
+        }
     }
 
     /**

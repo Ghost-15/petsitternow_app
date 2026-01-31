@@ -9,27 +9,19 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
-import www.com.petsitternow_app.domain.navigation.RouteProtectionManager
-import www.com.petsitternow_app.domain.navigation.RouteProtectionResult
 import www.com.petsitternow_app.view.adapter.MissionHistoryAdapter
-import javax.inject.Inject
 
 /**
  * Fragment displaying mission history for petsitters.
  */
 @AndroidEntryPoint
 class MissionHistoryFragment : Fragment(R.layout.fragment_mission_history) {
-
-    @Inject
-    lateinit var routeProtectionManager: RouteProtectionManager
 
     private val viewModel: MissionHistoryViewModel by viewModels()
 
@@ -41,28 +33,22 @@ class MissionHistoryFragment : Fragment(R.layout.fragment_mission_history) {
     private var tvError: TextView? = null
     private var btnRetry: View? = null
     private var tvTotalMissions: TextView? = null
+    private var tvStatLabel: TextView? = null
+    private var tvSubtitle: TextView? = null
+    private var tvEmptyTitle: TextView? = null
+    private var tvEmptySubtitle: TextView? = null
 
     private var missionHistoryAdapter: MissionHistoryAdapter? = null
+    private var lastAdapterRole: String? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewLifecycleOwner.lifecycleScope.launch {
-            when (routeProtectionManager.protectPetsitterRoute()) {
-                RouteProtectionResult.Allowed -> {
-                    initViews(view)
-                    setupRecyclerView()
-                    setupSwipeRefresh()
-                    observeState()
-                }
-                RouteProtectionResult.FeatureDisabled -> {
-                    Snackbar.make(view, R.string.feature_temporarily_unavailable, Snackbar.LENGTH_LONG).show()
-                    findNavController().popBackStack()
-                }
-                RouteProtectionResult.WrongRole, RouteProtectionResult.NotAuthenticated -> {
-                    findNavController().popBackStack()
-                }
-            }
-        }
+        // This fragment now works for both petsitter and owner roles
+        // The ViewModel detects the role and loads appropriate data
+        initViews(view)
+        setupRecyclerView(viewModel.uiState.value.userRole)
+        setupSwipeRefresh()
+        observeState()
     }
 
     private fun initViews(view: View) {
@@ -74,16 +60,28 @@ class MissionHistoryFragment : Fragment(R.layout.fragment_mission_history) {
         tvError = view.findViewById(R.id.tvError)
         btnRetry = view.findViewById(R.id.btnRetry)
         tvTotalMissions = view.findViewById(R.id.tvTotalMissions)
+        tvStatLabel = view.findViewById(R.id.tvStatLabel)
+        tvSubtitle = view.findViewById(R.id.tvSubtitle)
+        tvEmptyTitle = view.findViewById(R.id.tvEmptyTitle)
+        tvEmptySubtitle = view.findViewById(R.id.tvEmptySubtitle)
 
         btnRetry?.setOnClickListener { viewModel.refresh() }
     }
 
-    private fun setupRecyclerView() {
-        missionHistoryAdapter = MissionHistoryAdapter(emptyList()) { mission ->
+    private fun setupRecyclerView(userRole: String?) {
+        missionHistoryAdapter = MissionHistoryAdapter(emptyList(), userRole) { mission ->
             // Handle mission item click if needed
         }
         recyclerView?.layoutManager = LinearLayoutManager(requireContext())
         recyclerView?.adapter = missionHistoryAdapter
+    }
+
+    private fun updateLabelsForRole(userRole: String?) {
+        val isOwner = userRole == "owner"
+        tvStatLabel?.text = getString(if (isOwner) R.string.stat_walks else R.string.stat_missions)
+        tvSubtitle?.text = getString(if (isOwner) R.string.subtitle_history_owner else R.string.subtitle_history)
+        tvEmptyTitle?.text = getString(if (isOwner) R.string.empty_history_title_owner else R.string.empty_history_title)
+        tvEmptySubtitle?.text = getString(if (isOwner) R.string.empty_history_subtitle_owner else R.string.empty_history_subtitle)
     }
 
     private fun setupSwipeRefresh() {
@@ -98,6 +96,15 @@ class MissionHistoryFragment : Fragment(R.layout.fragment_mission_history) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     swipeRefresh?.isRefreshing = false
+
+                    // Update labels and adapter when role is known
+                    state.userRole?.let { role ->
+                        updateLabelsForRole(role)
+                        if (lastAdapterRole != role) {
+                            setupRecyclerView(role)
+                            lastAdapterRole = role
+                        }
+                    }
 
                     when {
                         state.isLoading && state.missions.isEmpty() -> {
@@ -125,8 +132,6 @@ class MissionHistoryFragment : Fragment(R.layout.fragment_mission_history) {
                             layoutEmpty?.visibility = View.GONE
                             layoutError?.visibility = View.GONE
                             missionHistoryAdapter?.updateMissions(state.missions)
-
-                            // Update stats
                             tvTotalMissions?.text = state.missions.size.toString()
                         }
                     }
@@ -145,6 +150,11 @@ class MissionHistoryFragment : Fragment(R.layout.fragment_mission_history) {
         tvError = null
         btnRetry = null
         tvTotalMissions = null
+        tvStatLabel = null
+        tvSubtitle = null
+        tvEmptyTitle = null
+        tvEmptySubtitle = null
         missionHistoryAdapter = null
+        lastAdapterRole = null
     }
 }

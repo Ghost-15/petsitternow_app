@@ -28,7 +28,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
 import www.com.petsitternow_app.domain.model.PetsitterMission
-import www.com.petsitternow_app.domain.model.PetsitterProfile
 import www.com.petsitternow_app.domain.model.WalkLocation
 import www.com.petsitternow_app.domain.model.WalkStatus
 import www.com.petsitternow_app.domain.repository.Pet
@@ -115,7 +114,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                             }
                             when {
                                 userType == "owner" || state.userType == null -> updatePetsDisplay(state.pets)
-                                userType == "petsitter" -> updatePetsitterStats(state.petsitterProfile)
                             }
                         }
                     }
@@ -288,9 +286,9 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                         switchOnline?.visibility = View.VISIBLE
                     }
 
-                    // Handle pending mission (inline card instead of dialog)
+                    // Handle pending mission (inline card instead of dialog) - only when online
                     state.pendingMission?.let { mission ->
-                        if (!mission.isExpired()) {
+                        if (!mission.isExpired() && state.isOnline) {
                             layoutPendingMission?.visibility = View.VISIBLE
                             layoutOnlineWaiting?.visibility = View.GONE
                             updatePendingMissionCard(mission, state.missionCountdown)
@@ -316,7 +314,8 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                         updateActiveMissionUI(effectiveStatus, state)
                     } ?: run {
                         layoutActiveMission?.visibility = View.GONE
-                        if (state.pendingMission == null || state.pendingMission.isExpired()) {
+                        val hasPendingDisplayed = state.pendingMission != null && !state.pendingMission!!.isExpired() && state.isOnline
+                        if (!hasPendingDisplayed) {
                             if (state.isOnline) {
                                 layoutOnlineWaiting?.visibility = View.VISIBLE
                                 layoutOffline?.visibility = View.GONE
@@ -324,11 +323,11 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                                 layoutOnlineWaiting?.visibility = View.GONE
                                 layoutOffline?.visibility = View.VISIBLE
                             }
+                        } else {
+                            layoutOnlineWaiting?.visibility = View.GONE
+                            layoutOffline?.visibility = View.GONE
                         }
                     }
-
-                    // Update stats
-                    updatePetsitterStats(viewModel.state.value.petsitterProfile)
                 }
             }
         }
@@ -473,16 +472,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                 )
             )
         }
-    }
-
-    private fun updatePetsitterStats(profile: PetsitterProfile?) {
-        val container = view?.findViewById<FrameLayout>(R.id.container) ?: return
-        val contentView = container.getChildAt(0) ?: return
-        val tvStatMissions = contentView.findViewById<TextView>(R.id.tvStatMissions) ?: return
-        // Use completedMissionsCount from state - counts actual completed missions
-        val count = viewModel.state.value.completedMissionsCount
-        tvStatMissions.text = count.toString()
-        android.util.Log.d("DashboardFragment", "Updated stats: completedMissionsCount=$count")
     }
 
     private fun setupOwnerView(view: View) {

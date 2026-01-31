@@ -23,7 +23,6 @@ data class DashboardState(
     val userType: String? = null,
     val pets: List<Pet> = emptyList(),
     val petsitterProfile: PetsitterProfile? = null,
-    val completedMissionsCount: Int = 0,
     val error: String? = null,
     val ownerPathEnabled: Boolean = true,
     val petsitterPathEnabled: Boolean = true
@@ -100,20 +99,6 @@ class DashboardViewModel @Inject constructor(
                 .catch { e -> Log.e("DashboardVM", "observeProfile error", e) }
                 .collect { profile ->
                     _state.value = _state.value.copy(petsitterProfile = profile)
-                }
-        }
-        // Also load completed missions count
-        loadCompletedMissionsCount(userId)
-    }
-    
-    private fun loadCompletedMissionsCount(userId: String) {
-        viewModelScope.launch {
-            petsitterRepository.observeMissionHistory(userId)
-                .catch { e -> Log.e("DashboardVM", "observeMissionHistory error", e) }
-                .collect { missions ->
-                    val completedCount = missions.count { it.status == www.com.petsitternow_app.domain.model.WalkStatus.COMPLETED }
-                    Log.d("DashboardVM", "Completed missions count: $completedCount")
-                    _state.value = _state.value.copy(completedMissionsCount = completedCount)
                 }
         }
     }

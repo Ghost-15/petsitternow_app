@@ -15,6 +15,7 @@ import java.util.Locale
 
 class MissionHistoryAdapter(
     private var missions: List<WalkRequest>,
+    private val userRole: String?,
     private val onClick: (WalkRequest) -> Unit
 ) : RecyclerView.Adapter<MissionHistoryAdapter.MissionHistoryViewHolder>() {
 
@@ -38,8 +39,8 @@ class MissionHistoryAdapter(
     inner class MissionHistoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvDate: TextView = itemView.findViewById(R.id.tvDate)
         private val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
-        private val tvOwnerInitial: TextView = itemView.findViewById(R.id.tvOwnerInitial)
-        private val tvOwnerName: TextView = itemView.findViewById(R.id.tvOwnerName)
+        private val tvPersonInitial: TextView = itemView.findViewById(R.id.tvPersonInitial)
+        private val tvPersonName: TextView = itemView.findViewById(R.id.tvPersonName)
         private val tvPetNames: TextView = itemView.findViewById(R.id.tvPetNames)
         private val tvDuration: TextView = itemView.findViewById(R.id.tvDuration)
         private val tvActualDuration: TextView = itemView.findViewById(R.id.tvActualDuration)
@@ -77,14 +78,24 @@ class MissionHistoryAdapter(
                 }
             }
 
-            // Owner info
-            mission.owner?.let { owner ->
-                val fullName = "${owner.firstName} ${owner.lastName}".trim()
-                tvOwnerName.text = if (fullName.isNotEmpty()) fullName else owner.name
-                tvOwnerInitial.text = (owner.firstName.firstOrNull() ?: owner.name.firstOrNull() ?: '?').uppercase()
-            } ?: run {
-                tvOwnerName.text = "Proprietaire"
-                tvOwnerInitial.text = "?"
+            // Person info: petsitter name for owner, owner name for petsitter
+            when (userRole) {
+                "owner" -> mission.petsitter?.let { petsitter ->
+                    val fullName = "${petsitter.firstName} ${petsitter.lastName}".trim()
+                    tvPersonName.text = if (fullName.isNotEmpty()) fullName else petsitter.name
+                    tvPersonInitial.text = (petsitter.firstName.firstOrNull() ?: petsitter.name.firstOrNull() ?: '?').uppercase()
+                } ?: run {
+                    tvPersonName.text = "Petsitter"
+                    tvPersonInitial.text = "?"
+                }
+                else -> mission.owner?.let { owner ->
+                    val fullName = "${owner.firstName} ${owner.lastName}".trim()
+                    tvPersonName.text = if (fullName.isNotEmpty()) fullName else owner.name
+                    tvPersonInitial.text = (owner.firstName.firstOrNull() ?: owner.name.firstOrNull() ?: '?').uppercase()
+                } ?: run {
+                    tvPersonName.text = "Proprietaire"
+                    tvPersonInitial.text = "?"
+                }
             }
 
             // Pet names (placeholder)

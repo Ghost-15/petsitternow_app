@@ -36,6 +36,10 @@
     <string name="btn_retry">Réessayer</string>
     <string name="empty_history_title">Aucune mission</string>
     <string name="empty_history_subtitle">Vos missions apparaîtront ici</string>
+    <string name="stat_walks">Promenades</string>
+    <string name="subtitle_history_owner">Vos promenades passées</string>
+    <string name="empty_history_title_owner">Aucune promenade</string>
+    <string name="empty_history_subtitle_owner">Vos promenades apparaîtront ici</string>
 
     <!-- Statuses -->
     <string name="status_offline">Hors ligne</string>
