@@ -15,6 +15,7 @@ enum class WalkStatus(val value: String) {
     COMPLETED("completed"),
     CANCELLED("cancelled"),
     FAILED("failed"),
+    EXPIRED("expired"),
     DISMISSED("dismissed");
 
     companion object {
@@ -22,7 +23,7 @@ enum class WalkStatus(val value: String) {
             return entries.find { it.value == value } ?: PENDING
         }
 
-        val FINAL_STATUSES = listOf(COMPLETED, CANCELLED, FAILED)
+        val FINAL_STATUSES = listOf(COMPLETED, CANCELLED, FAILED, EXPIRED)
         val WALKING_PHASE_STATUSES = listOf(WALKING, RETURNING)
         val ROUTE_PHASE_STATUSES = listOf(GOING_TO_OWNER, ASSIGNED, RETURNING)
         val ASSIGNED_PHASE_STATUSES = listOf(ASSIGNED, GOING_TO_OWNER)

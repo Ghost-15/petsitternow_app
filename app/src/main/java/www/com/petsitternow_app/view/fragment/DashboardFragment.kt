@@ -677,7 +677,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                                 btnCancel?.visibility = View.GONE
                                 btnDismiss?.visibility = View.VISIBLE
                             }
-                            WalkStatus.FAILED -> {
+                            WalkStatus.FAILED, WalkStatus.EXPIRED -> {
                                 tvStatusTitle?.text = "Échec de la demande"
                                 tvStatusSubtitle?.text = "Aucun petsitter disponible"
                                 viewStatusBackground?.setBackgroundResource(R.drawable.bg_walk_status_failed)

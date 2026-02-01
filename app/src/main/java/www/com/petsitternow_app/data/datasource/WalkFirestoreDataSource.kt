@@ -118,7 +118,8 @@ class WalkFirestoreDataSource @Inject constructor(
             WalkStatus.IN_PROGRESS.value,
             WalkStatus.WALKING.value,
             WalkStatus.RETURNING.value,
-            WalkStatus.FAILED.value // Show FAILED until dismissed
+            WalkStatus.FAILED.value, // Show until dismissed
+            WalkStatus.EXPIRED.value // Show until dismissed
         )
 
         val listener: ListenerRegistration = firestore.collection(COLLECTION_WALK_REQUESTS)
@@ -156,7 +157,9 @@ class WalkFirestoreDataSource @Inject constructor(
         val finalStatuses = listOf(
             WalkStatus.COMPLETED.value,
             WalkStatus.CANCELLED.value,
-            WalkStatus.DISMISSED.value
+            WalkStatus.DISMISSED.value,
+            WalkStatus.FAILED.value,
+            WalkStatus.EXPIRED.value
         )
 
         val listener: ListenerRegistration = firestore.collection(COLLECTION_WALK_REQUESTS)
