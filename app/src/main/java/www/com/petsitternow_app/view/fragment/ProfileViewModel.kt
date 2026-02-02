@@ -11,8 +11,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import www.com.petsitternow_app.domain.repository.NotificationRepository
 import javax.inject.Inject
 
 data class ProfileState(
@@ -42,7 +44,8 @@ data class ProfileState(
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val notificationRepository: NotificationRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProfileState())
@@ -114,6 +117,8 @@ class ProfileViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
+            // Supprimer le token FCM AVANT de se déconnecter
+            notificationRepository.clearFcmToken().collect { }
             auth.signOut()
             _logoutEvent.emit(Unit)
         }

@@ -10,11 +10,13 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import www.com.petsitternow_app.R
@@ -23,12 +25,43 @@ import www.com.petsitternow_app.ui.dashboard.DashboardActivity
 class PetSitterNowMessagingService : FirebaseMessagingService() {
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var channelCreated = false
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel()
+    }
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d(TAG, "FCM token refreshed: ${token.take(20)}...")
         serviceScope.launch {
             saveTokenToFirestore(token)
+        }
+    }
+
+    private suspend fun saveTokenToFirestore(token: String) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val firestore = FirebaseFirestore.getInstance()
+
+        try {
+            firestore.collection(COLLECTION_USERS)
+                .document(uid)
+                .set(mapOf(FIELD_FCM_TOKEN to token), SetOptions.merge())
+                .await()
+            Log.d(TAG, "FCM token saved to users/$uid")
+
+            val tokenResult = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()
+            val role = tokenResult?.claims?.get("role") as? String
+            if (role == "petsitter") {
+                firestore.collection(COLLECTION_PETSITTERS_PROFILES)
+                    .document(uid)
+                    .set(mapOf(FIELD_FCM_TOKEN to token), SetOptions.merge())
+                    .await()
+                Log.d(TAG, "FCM token saved to petsitters_profiles/$uid")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to save FCM token", e)
         }
     }
 
@@ -51,14 +84,10 @@ class PetSitterNowMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun showNotification(
-        title: String,
-        body: String,
-        data: Map<String, String>
-    ) {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
+    private fun ensureNotificationChannel() {
+        if (channelCreated) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 getString(R.string.app_name),
@@ -68,7 +97,17 @@ class PetSitterNowMessagingService : FirebaseMessagingService() {
                 enableVibration(true)
             }
             notificationManager.createNotificationChannel(channel)
+            channelCreated = true
         }
+    }
+
+    private fun showNotification(
+        title: String,
+        body: String,
+        data: Map<String, String>
+    ) {
+        ensureNotificationChannel()
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val intent = Intent(this, DashboardActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -92,31 +131,6 @@ class PetSitterNowMessagingService : FirebaseMessagingService() {
 
         val notificationId = data["requestId"]?.hashCode()?.and(0x7FFFFFFF) ?: NOTIFICATION_ID
         notificationManager.notify(notificationId, notification)
-    }
-
-    private suspend fun saveTokenToFirestore(token: String) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val firestore = FirebaseFirestore.getInstance()
-
-        try {
-            firestore.collection(COLLECTION_USERS)
-                .document(uid)
-                .set(mapOf(FIELD_FCM_TOKEN to token), com.google.firebase.firestore.SetOptions.merge())
-                .await()
-            Log.d(TAG, "FCM token saved to users/$uid")
-
-            val tokenResult = FirebaseAuth.getInstance().currentUser?.getIdToken(true)?.await()
-            val role = tokenResult?.claims?.get("role") as? String
-            if (role == "petsitter") {
-                firestore.collection(COLLECTION_PETSITTERS_PROFILES)
-                    .document(uid)
-                    .set(mapOf(FIELD_FCM_TOKEN to token), com.google.firebase.firestore.SetOptions.merge())
-                    .await()
-                Log.d(TAG, "FCM token saved to petsitters_profiles/$uid")
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to save FCM token", e)
-        }
     }
 
     companion object {
