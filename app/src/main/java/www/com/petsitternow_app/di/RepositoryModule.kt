@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import www.com.petsitternow_app.data.repository.AuthRepositoryImpl
 import www.com.petsitternow_app.data.repository.FeatureFlagRepositoryImpl
+import www.com.petsitternow_app.data.repository.NotificationRepositoryImpl
 import www.com.petsitternow_app.data.repository.PetRepositoryImpl
 import www.com.petsitternow_app.data.repository.PetsitterRepositoryImpl
 import www.com.petsitternow_app.data.repository.UserRepositoryImpl
@@ -14,6 +15,7 @@ import www.com.petsitternow_app.domain.navigation.RouteProtectionManager
 import www.com.petsitternow_app.domain.navigation.RouteProtectionManagerImpl
 import www.com.petsitternow_app.domain.repository.AuthRepository
 import www.com.petsitternow_app.domain.repository.FeatureFlagRepository
+import www.com.petsitternow_app.domain.repository.NotificationRepository
 import www.com.petsitternow_app.domain.repository.PetRepository
 import www.com.petsitternow_app.domain.repository.PetsitterRepository
 import www.com.petsitternow_app.domain.repository.UserRepository
@@ -65,5 +67,11 @@ abstract class RepositoryModule {
     abstract fun bindRouteProtectionManager(
         impl: RouteProtectionManagerImpl
     ): RouteProtectionManager
+
+    @Binds
+    @Singleton
+    abstract fun bindNotificationRepository(
+        impl: NotificationRepositoryImpl
+    ): NotificationRepository
 }
 

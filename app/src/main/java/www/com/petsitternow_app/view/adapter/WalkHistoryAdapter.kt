@@ -65,7 +65,7 @@ class WalkHistoryAdapter(
                     tvStatus.setTextColor(itemView.context.getColor(R.color.text_muted))
                     tvStatus.setBackgroundResource(R.drawable.bg_badge_age)
                 }
-                WalkStatus.FAILED -> {
+                WalkStatus.FAILED, WalkStatus.EXPIRED -> {
                     tvStatus.text = "Echouee"
                     tvStatus.setTextColor(0xFFEF4444.toInt())
                     tvStatus.setBackgroundResource(R.drawable.bg_walk_status_failed)

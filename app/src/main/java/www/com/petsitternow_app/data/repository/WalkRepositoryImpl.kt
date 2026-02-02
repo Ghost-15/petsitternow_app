@@ -131,8 +131,8 @@ class WalkRepositoryImpl @Inject constructor(
             return@flow
         }
 
-        // Only FAILED requests can be dismissed
-        if (request.status != WalkStatus.FAILED) {
+        // Only FAILED or EXPIRED requests can be dismissed
+        if (request.status != WalkStatus.FAILED && request.status != WalkStatus.EXPIRED) {
             emit(Result.failure(Exception("Cette action n'est disponible que pour les demandes en échec")))
             return@flow
         }

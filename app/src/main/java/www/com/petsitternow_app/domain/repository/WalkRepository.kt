@@ -34,8 +34,8 @@ interface WalkRepository {
     fun cancelWalkRequest(requestId: String): Flow<Result<Unit>>
 
     /**
-     * Dismiss a failed walk request.
-     * Only allowed for FAILED status.
+     * Dismiss a failed or expired walk request.
+     * Only allowed for FAILED or EXPIRED status.
      *
      * @param requestId The walk request ID
      * @return Flow emitting Result success or failure
