@@ -88,18 +88,21 @@ class MissionHistoryAdapter(
                     tvPersonName.text = "Petsitter"
                     tvPersonInitial.text = "?"
                 }
-                else -> mission.owner?.let { owner ->
+                else -> {
+                    val owner = mission.owner
                     val fullName = "${owner.firstName} ${owner.lastName}".trim()
                     tvPersonName.text = if (fullName.isNotEmpty()) fullName else owner.name
                     tvPersonInitial.text = (owner.firstName.firstOrNull() ?: owner.name.firstOrNull() ?: '?').uppercase()
-                } ?: run {
-                    tvPersonName.text = "Proprietaire"
-                    tvPersonInitial.text = "?"
                 }
             }
 
-            // Pet names (placeholder)
-            tvPetNames.text = "${mission.petIds.size} chien${if (mission.petIds.size > 1) "s" else ""}"
+            // Pet names from owner info
+            val petNames = mission.owner.pets.map { it.name }
+            tvPetNames.text = if (petNames.isNotEmpty()) {
+                petNames.joinToString(", ")
+            } else {
+                "${mission.owner.pets.size} chien${if (mission.owner.pets.size > 1) "s" else ""}"
+            }
 
             // Duration
             tvDuration.text = "${mission.duration} min"

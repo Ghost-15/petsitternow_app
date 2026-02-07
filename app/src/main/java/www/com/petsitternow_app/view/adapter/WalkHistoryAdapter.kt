@@ -87,8 +87,13 @@ class WalkHistoryAdapter(
                 tvPetsitterInitial.text = "?"
             }
 
-            // Pet names (placeholder - ideally would fetch from pet IDs)
-            tvPetNames.text = "${walk.petIds.size} chien${if (walk.petIds.size > 1) "s" else ""}"
+            // Pet names from owner info
+            val petNames = walk.owner.pets.map { it.name }
+            tvPetNames.text = if (petNames.isNotEmpty()) {
+                petNames.joinToString(", ")
+            } else {
+                "${walk.owner.pets.size} chien${if (walk.owner.pets.size > 1) "s" else ""}"
+            }
 
             // Duration
             tvDuration.text = "${walk.duration} min"

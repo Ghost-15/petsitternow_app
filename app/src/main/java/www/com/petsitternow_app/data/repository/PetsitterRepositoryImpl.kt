@@ -6,10 +6,8 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import www.com.petsitternow_app.data.datasource.WalkFirestoreDataSource
 import www.com.petsitternow_app.data.datasource.WalkRealtimeDataSource
@@ -126,46 +124,26 @@ class PetsitterRepositoryImpl @Inject constructor(
                         address = locationMap?.get("address") as? String ?: ""
                     )
                     
-                    val petIds = (data?.get("petIds") as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
-                    val ownerId = data?.get("ownerId") as? String ?: ""
+                    // Read owner info directly from the document (no more separate fetches)
+                    val ownerMap = data?.get("owner") as? Map<String, Any?>
+                    val ownerName = ownerMap?.get("name") as? String ?: "Propriétaire"
+                    val ownerId = ownerMap?.get("id") as? String ?: ""
+                    val petsList = ownerMap?.get("pets") as? List<Map<String, Any?>>
+                    val petNames = petsList?.mapNotNull { it["name"] as? String } ?: listOf("Animal")
                     
-                    // Fetch pet names and owner name asynchronously
-                    this@callbackFlow.launch {
-                        val petNames = mutableListOf<String>()
-                        for (petId in petIds) {
-                            try {
-                                val petDoc = firestore.collection("pets").document(petId).get().await()
-                                val name = petDoc.getString("name")
-                                if (name != null) petNames.add(name)
-                            } catch (e: Exception) {
-                                Log.e("PetsitterRepo", "Error fetching pet name for $petId", e)
-                            }
-                        }
-                        
-                        var ownerName = ""
-                        try {
-                            val ownerDoc = firestore.collection("users").document(ownerId).get().await()
-                            val firstName = ownerDoc.getString("firstName") ?: ""
-                            val lastName = ownerDoc.getString("lastName") ?: ""
-                            ownerName = "$firstName $lastName".trim().ifEmpty { "Propriétaire" }
-                        } catch (e: Exception) {
-                            Log.e("PetsitterRepo", "Error fetching owner name for $ownerId", e)
-                        }
-                        
-                        val mission = PetsitterMission(
-                            requestId = doc.id,
-                            ownerId = ownerId,
-                            ownerName = ownerName,
-                            petNames = petNames.ifEmpty { listOf("Animal") },
-                            duration = data?.get("duration") as? String ?: "30",
-                            distance = 0.0,
-                            location = location,
-                            expiresAt = Long.MAX_VALUE // Never expires client-side
-                        )
-                        
-                        Log.d("PetsitterRepo", "observePendingMission: Sending mission ${mission.requestId} with petNames=${mission.petNames}, ownerName=${mission.ownerName}")
-                        trySend(mission)
-                    }
+                    val mission = PetsitterMission(
+                        requestId = doc.id,
+                        ownerId = ownerId,
+                        ownerName = ownerName,
+                        petNames = petNames.ifEmpty { listOf("Animal") },
+                        duration = data?.get("duration") as? String ?: "30",
+                        distance = 0.0,
+                        location = location,
+                        expiresAt = Long.MAX_VALUE // Never expires client-side
+                    )
+                    
+                    Log.d("PetsitterRepo", "observePendingMission: Sending mission ${mission.requestId} with petNames=${mission.petNames}, ownerName=${mission.ownerName}")
+                    trySend(mission)
                 }
             }
         
@@ -246,7 +224,7 @@ class PetsitterRepositoryImpl @Inject constructor(
             return@flow
         }
 
-        if (request.assignedPetsitterId != currentUserId) {
+        if (request.petsitter?.id != currentUserId) {
             emit(Result.failure(Exception("Action non autorisée")))
             return@flow
         }
@@ -293,8 +271,8 @@ class PetsitterRepositoryImpl @Inject constructor(
             return@flow
         }
 
-        Log.d("PetsitterRepo", "markReturning: request.assignedPetsitterId=${request.assignedPetsitterId}, currentUserId=$currentUserId")
-        if (request.assignedPetsitterId != currentUserId) {
+        Log.d("PetsitterRepo", "markReturning: request.petsitter?.id=${request.petsitter?.id}, currentUserId=$currentUserId")
+        if (request.petsitter?.id != currentUserId) {
             Log.e("PetsitterRepo", "markReturning: Action non autorisée")
             emit(Result.failure(Exception("Action non autorisée")))
             return@flow
@@ -340,7 +318,7 @@ class PetsitterRepositoryImpl @Inject constructor(
             return@flow
         }
 
-        if (request.assignedPetsitterId != currentUserId) {
+        if (request.petsitter?.id != currentUserId) {
             emit(Result.failure(Exception("Action non autorisée")))
             return@flow
         }
@@ -438,7 +416,7 @@ class PetsitterRepositoryImpl @Inject constructor(
             return@flow
         }
 
-        if (request.assignedPetsitterId != currentUserId) {
+        if (request.petsitter?.id != currentUserId) {
             emit(Result.failure(Exception("Action non autorisée")))
             return@flow
         }

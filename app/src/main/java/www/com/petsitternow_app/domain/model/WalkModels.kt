@@ -101,6 +101,29 @@ data class PetsitterInfo(
 }
 
 /**
+ * Pet info embedded in owner info within walk request.
+ */
+data class PetInfo(
+    val id: String = "",
+    val name: String = ""
+) {
+    fun toMap(): Map<String, Any> = mapOf(
+        "id" to id,
+        "name" to name
+    )
+
+    companion object {
+        fun fromMap(map: Map<String, Any?>?): PetInfo {
+            if (map == null) return PetInfo()
+            return PetInfo(
+                id = map["id"] as? String ?: "",
+                name = map["name"] as? String ?: ""
+            )
+        }
+    }
+}
+
+/**
  * Owner info embedded in walk request.
  */
 data class OwnerInfo(
@@ -108,18 +131,27 @@ data class OwnerInfo(
     val firstName: String = "",
     val lastName: String = "",
     val name: String = "",
-    val petNames: List<String> = emptyList()
+    val pets: List<PetInfo> = emptyList()
 ) {
+    fun toMap(): Map<String, Any> = mapOf(
+        "id" to id,
+        "firstName" to firstName,
+        "lastName" to lastName,
+        "name" to name,
+        "pets" to pets.map { it.toMap() }
+    )
+
     companion object {
         @Suppress("UNCHECKED_CAST")
-        fun fromMap(map: Map<String, Any?>?): OwnerInfo? {
-            if (map == null) return null
+        fun fromMap(map: Map<String, Any?>?): OwnerInfo {
+            if (map == null) return OwnerInfo()
+            val petsList = (map["pets"] as? List<Map<String, Any?>>)?.map { PetInfo.fromMap(it) } ?: emptyList()
             return OwnerInfo(
                 id = map["id"] as? String ?: "",
                 firstName = map["firstName"] as? String ?: "",
                 lastName = map["lastName"] as? String ?: "",
                 name = map["name"] as? String ?: "",
-                petNames = (map["petNames"] as? List<String>) ?: emptyList()
+                pets = petsList
             )
         }
     }
@@ -130,14 +162,11 @@ data class OwnerInfo(
  */
 data class WalkRequest(
     val id: String = "",
-    val ownerId: String = "",
-    val petIds: List<String> = emptyList(),
     val location: WalkLocation = WalkLocation(),
     val duration: String = "30",
     val status: WalkStatus = WalkStatus.PENDING,
-    val assignedPetsitterId: String? = null,
+    val owner: OwnerInfo = OwnerInfo(),
     val petsitter: PetsitterInfo? = null,
-    val owner: OwnerInfo? = null,
     val createdAt: Long? = null,
     val matchingStartedAt: Long? = null,
     val assignedAt: Long? = null,
@@ -150,14 +179,11 @@ data class WalkRequest(
         fun fromMap(id: String, map: Map<String, Any?>): WalkRequest {
             return WalkRequest(
                 id = id,
-                ownerId = map["ownerId"] as? String ?: "",
-                petIds = (map["petIds"] as? List<String>) ?: emptyList(),
                 location = WalkLocation.fromMap(map["location"] as? Map<String, Any?>),
                 duration = map["duration"] as? String ?: "30",
                 status = WalkStatus.fromValue(map["status"] as? String),
-                assignedPetsitterId = map["assignedPetsitterId"] as? String,
-                petsitter = PetsitterInfo.fromMap(map["petsitter"] as? Map<String, Any?>),
                 owner = OwnerInfo.fromMap(map["owner"] as? Map<String, Any?>),
+                petsitter = PetsitterInfo.fromMap(map["petsitter"] as? Map<String, Any?>),
                 createdAt = (map["createdAt"] as? com.google.firebase.Timestamp)?.toDate()?.time,
                 matchingStartedAt = (map["matchingStartedAt"] as? com.google.firebase.Timestamp)?.toDate()?.time,
                 assignedAt = (map["assignedAt"] as? com.google.firebase.Timestamp)?.toDate()?.time,

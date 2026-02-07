@@ -401,9 +401,10 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             ?: 'P'
         tvOwnerInitial?.text = initial.uppercase().toString()
         
-        // Use pet names from owner info if available
-        val petNamesText = mission?.owner?.petNames?.takeIf { it.isNotEmpty() }?.joinToString(", ")
-            ?: "${mission?.petIds?.size ?: 0} chien${if ((mission?.petIds?.size ?: 0) > 1) "s" else ""}"
+        // Use pet names from owner info
+        val petNames = mission?.owner?.pets?.map { it.name }
+        val petNamesText = petNames?.takeIf { it.isNotEmpty() }?.joinToString(", ")
+            ?: "${mission?.owner?.pets?.size ?: 0} chien${if ((mission?.owner?.pets?.size ?: 0) > 1) "s" else ""}"
         tvPetNames?.text = petNamesText
         
         // Update address

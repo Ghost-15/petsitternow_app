@@ -15,7 +15,8 @@ data class Pet(
     val breed: String,
     val birthDate: String,
     val photos: List<String>,
-    val ownerId: String
+    val ownerId: String,
+    val isActive: Boolean = true
 )
 
 interface PetRepository {

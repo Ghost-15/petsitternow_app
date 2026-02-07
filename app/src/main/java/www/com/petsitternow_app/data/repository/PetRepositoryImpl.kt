@@ -21,7 +21,8 @@ class PetRepositoryImpl @Inject constructor(
                 "birthDate" to petData.birthDate,
                 "photos" to petData.photos,
                 "ownerId" to ownerId,
-                "createdAt" to System.currentTimeMillis()
+                "isActive" to true,
+                "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
             )
 
             val docRef = firestore.collection("pets")
@@ -39,6 +40,7 @@ class PetRepositoryImpl @Inject constructor(
         try {
             val snapshot = firestore.collection("pets")
                 .whereEqualTo("ownerId", ownerId)
+                .whereEqualTo("isActive", true)
                 .get()
                 .await()
 
@@ -50,7 +52,8 @@ class PetRepositoryImpl @Inject constructor(
                     breed = data["breed"] as? String ?: "",
                     birthDate = data["birthDate"] as? String ?: "",
                     photos = (data["photos"] as? List<String>) ?: emptyList(),
-                    ownerId = data["ownerId"] as? String ?: ownerId
+                    ownerId = data["ownerId"] as? String ?: ownerId,
+                    isActive = data["isActive"] as? Boolean ?: true
                 )
             }
             emit(Result.success(pets))
@@ -79,7 +82,8 @@ class PetRepositoryImpl @Inject constructor(
                 breed = data["breed"] as? String ?: "",
                 birthDate = data["birthDate"] as? String ?: "",
                 photos = (data["photos"] as? List<String>) ?: emptyList(),
-                ownerId = data["ownerId"] as? String ?: ""
+                ownerId = data["ownerId"] as? String ?: "",
+                isActive = data["isActive"] as? Boolean ?: true
             )
             emit(Result.success(pet))
         } catch (e: Exception) {
@@ -112,7 +116,12 @@ class PetRepositoryImpl @Inject constructor(
         try {
             firestore.collection("pets")
                 .document(petId)
-                .delete()
+                .update(
+                    mapOf(
+                        "isActive" to false,
+                        "updatedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                    )
+                )
                 .await()
 
             emit(Result.success(Unit))

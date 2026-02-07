@@ -12,6 +12,9 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import www.com.petsitternow_app.data.FakePetsitterRepository
+import www.com.petsitternow_app.domain.model.OwnerInfo
+import www.com.petsitternow_app.domain.model.PetInfo
+import www.com.petsitternow_app.domain.model.PetsitterInfo
 import www.com.petsitternow_app.domain.model.PetsitterMission
 import www.com.petsitternow_app.domain.model.PetsitterProfile
 import www.com.petsitternow_app.domain.model.WalkLocation
@@ -313,12 +316,20 @@ class PetsitterMissionsViewModelTest {
     ): WalkRequest {
         return WalkRequest(
             id = "walk_${System.currentTimeMillis()}",
-            ownerId = "owner1",
-            petIds = listOf("pet1", "pet2"),
+            owner = OwnerInfo(
+                id = "owner1",
+                firstName = "Test",
+                lastName = "Owner",
+                name = "Test Owner",
+                pets = listOf(
+                    PetInfo(id = "pet1", name = "Max"),
+                    PetInfo(id = "pet2", name = "Buddy")
+                )
+            ),
             location = location,
             duration = "30",
             status = status,
-            assignedPetsitterId = "petsitter1",
+            petsitter = PetsitterInfo(id = "petsitter1", firstName = "Test", lastName = "Petsitter", name = "Test Petsitter"),
             createdAt = System.currentTimeMillis()
         )
     }

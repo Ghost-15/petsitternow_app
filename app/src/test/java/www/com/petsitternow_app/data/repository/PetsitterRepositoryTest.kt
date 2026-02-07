@@ -6,6 +6,9 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import www.com.petsitternow_app.data.FakePetsitterRepository
+import www.com.petsitternow_app.domain.model.OwnerInfo
+import www.com.petsitternow_app.domain.model.PetInfo
+import www.com.petsitternow_app.domain.model.PetsitterInfo
 import www.com.petsitternow_app.domain.model.PetsitterMission
 import www.com.petsitternow_app.domain.model.PetsitterProfile
 import www.com.petsitternow_app.domain.model.WalkLocation
@@ -167,11 +170,11 @@ class PetsitterRepositoryTest {
     fun `startWalk with assigned mission returns success`() = runTest {
         val activeMission = WalkRequest(
             id = "mission1",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
-            status = WalkStatus.ASSIGNED
+            status = WalkStatus.ASSIGNED,
+            petsitter = PetsitterInfo(id = "petsitter1", name = "Test Petsitter")
         )
         repository.setActiveMission(activeMission)
 
@@ -184,11 +187,11 @@ class PetsitterRepositoryTest {
     fun `startWalk updates status to WALKING`() = runTest {
         val activeMission = WalkRequest(
             id = "mission1",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
-            status = WalkStatus.ASSIGNED
+            status = WalkStatus.ASSIGNED,
+            petsitter = PetsitterInfo(id = "petsitter1", name = "Test Petsitter")
         )
         repository.setActiveMission(activeMission)
 
@@ -202,11 +205,11 @@ class PetsitterRepositoryTest {
     fun `startWalk with wrong status returns failure`() = runTest {
         val activeMission = WalkRequest(
             id = "mission1",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
-            status = WalkStatus.WALKING
+            status = WalkStatus.WALKING,
+            petsitter = PetsitterInfo(id = "petsitter1", name = "Test Petsitter")
         )
         repository.setActiveMission(activeMission)
 
@@ -221,11 +224,11 @@ class PetsitterRepositoryTest {
     fun `markReturning with walking mission returns success`() = runTest {
         val activeMission = WalkRequest(
             id = "mission1",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
-            status = WalkStatus.WALKING
+            status = WalkStatus.WALKING,
+            petsitter = PetsitterInfo(id = "petsitter1", name = "Test Petsitter")
         )
         repository.setActiveMission(activeMission)
 
@@ -238,11 +241,11 @@ class PetsitterRepositoryTest {
     fun `markReturning updates status to RETURNING`() = runTest {
         val activeMission = WalkRequest(
             id = "mission1",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
-            status = WalkStatus.WALKING
+            status = WalkStatus.WALKING,
+            petsitter = PetsitterInfo(id = "petsitter1", name = "Test Petsitter")
         )
         repository.setActiveMission(activeMission)
 
@@ -259,11 +262,11 @@ class PetsitterRepositoryTest {
         val ownerLocation = WalkLocation(lat = 48.8566, lng = 2.3522)
         val activeMission = WalkRequest(
             id = "mission1",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = ownerLocation,
             duration = "30",
-            status = WalkStatus.RETURNING
+            status = WalkStatus.RETURNING,
+            petsitter = PetsitterInfo(id = "petsitter1", name = "Test Petsitter")
         )
         repository.setActiveMission(activeMission)
 
@@ -280,11 +283,11 @@ class PetsitterRepositoryTest {
         val ownerLocation = WalkLocation(lat = 48.8566, lng = 2.3522)
         val activeMission = WalkRequest(
             id = "mission1",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = ownerLocation,
             duration = "30",
-            status = WalkStatus.RETURNING
+            status = WalkStatus.RETURNING,
+            petsitter = PetsitterInfo(id = "petsitter1", name = "Test Petsitter")
         )
         repository.setActiveMission(activeMission)
 
@@ -300,11 +303,11 @@ class PetsitterRepositoryTest {
         val ownerLocation = WalkLocation(lat = 48.8566, lng = 2.3522)
         val activeMission = WalkRequest(
             id = "mission1",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = ownerLocation,
             duration = "30",
-            status = WalkStatus.RETURNING
+            status = WalkStatus.RETURNING,
+            petsitter = PetsitterInfo(id = "petsitter1", name = "Test Petsitter")
         )
         repository.setActiveMission(activeMission)
 
@@ -321,11 +324,11 @@ class PetsitterRepositoryTest {
     fun `completeWalk with wrong status returns failure`() = runTest {
         val activeMission = WalkRequest(
             id = "mission1",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
-            status = WalkStatus.WALKING
+            status = WalkStatus.WALKING,
+            petsitter = PetsitterInfo(id = "petsitter1", name = "Test Petsitter")
         )
         repository.setActiveMission(activeMission)
 
@@ -355,11 +358,11 @@ class PetsitterRepositoryTest {
     fun `cancelMission updates status to CANCELLED`() = runTest {
         val activeMission = WalkRequest(
             id = "mission1",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
-            status = WalkStatus.WALKING
+            status = WalkStatus.WALKING,
+            petsitter = PetsitterInfo(id = "petsitter1", name = "Test Petsitter")
         )
         repository.setActiveMission(activeMission)
 
@@ -376,19 +379,19 @@ class PetsitterRepositoryTest {
         val missions = listOf(
             WalkRequest(
                 id = "m1",
-                ownerId = "owner1",
-                petIds = listOf("pet1"),
+                owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
                 location = WalkLocation(lat = 48.8566, lng = 2.3522),
                 duration = "30",
-                status = WalkStatus.COMPLETED
+                status = WalkStatus.COMPLETED,
+                petsitter = PetsitterInfo(id = "petsitter1", name = "Test Petsitter")
             ),
             WalkRequest(
                 id = "m2",
-                ownerId = "owner2",
-                petIds = listOf("pet2"),
+                owner = OwnerInfo(id = "owner2", firstName = "Test2", lastName = "Owner2", name = "Test2 Owner2", pets = listOf(PetInfo(id = "pet2", name = "Buddy"))),
                 location = WalkLocation(lat = 48.8566, lng = 2.3522),
                 duration = "45",
-                status = WalkStatus.COMPLETED
+                status = WalkStatus.COMPLETED,
+                petsitter = PetsitterInfo(id = "petsitter1", name = "Test Petsitter")
             )
         )
         repository.setMissionHistory(missions)

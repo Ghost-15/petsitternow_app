@@ -3,6 +3,9 @@ package www.com.petsitternow_app.data
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
+import www.com.petsitternow_app.domain.model.OwnerInfo
+import www.com.petsitternow_app.domain.model.PetInfo
+import www.com.petsitternow_app.domain.model.PetsitterInfo
 import www.com.petsitternow_app.domain.model.PetsitterMission
 import www.com.petsitternow_app.domain.model.PetsitterProfile
 import www.com.petsitternow_app.domain.model.WalkLocation
@@ -92,12 +95,15 @@ class FakePetsitterRepository : PetsitterRepository {
         // Create active mission from pending
         val activeRequest = WalkRequest(
             id = requestId,
-            ownerId = mission.ownerId,
-            petIds = emptyList(),
+            owner = OwnerInfo(
+                id = mission.ownerId,
+                name = mission.ownerName,
+                pets = mission.petNames.map { PetInfo(id = "", name = it) }
+            ),
             location = mission.location,
             duration = mission.duration,
             status = WalkStatus.ASSIGNED,
-            assignedPetsitterId = "test_petsitter",
+            petsitter = PetsitterInfo(id = "test_petsitter", name = "Test Petsitter"),
             createdAt = System.currentTimeMillis()
         )
 
