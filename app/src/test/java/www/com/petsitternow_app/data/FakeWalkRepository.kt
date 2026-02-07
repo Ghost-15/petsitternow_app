@@ -4,6 +4,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import www.com.petsitternow_app.domain.model.ActiveWalk
+import www.com.petsitternow_app.domain.model.OwnerInfo
+import www.com.petsitternow_app.domain.model.PetInfo
 import www.com.petsitternow_app.domain.model.WalkLocation
 import www.com.petsitternow_app.domain.model.WalkRequest
 import www.com.petsitternow_app.domain.model.WalkStatus
@@ -66,8 +68,13 @@ class FakeWalkRepository : WalkRepository {
         val id = "walk_${System.currentTimeMillis()}"
         val request = WalkRequest(
             id = id,
-            ownerId = "test_owner",
-            petIds = petIds,
+            owner = OwnerInfo(
+                id = "test_owner",
+                firstName = "Test",
+                lastName = "Owner",
+                name = "Test Owner",
+                pets = petIds.map { PetInfo(id = it, name = "Pet $it") }
+            ),
             location = location,
             duration = duration,
             status = WalkStatus.PENDING,

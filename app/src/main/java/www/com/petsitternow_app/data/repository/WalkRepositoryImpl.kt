@@ -1,11 +1,16 @@
 package www.com.petsitternow_app.data.repository
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.tasks.await
 import www.com.petsitternow_app.data.datasource.WalkFirestoreDataSource
 import www.com.petsitternow_app.data.datasource.WalkRealtimeDataSource
 import www.com.petsitternow_app.domain.model.ActiveWalk
+import www.com.petsitternow_app.domain.model.OwnerInfo
+import www.com.petsitternow_app.domain.model.PetInfo
 import www.com.petsitternow_app.domain.model.WalkLocation
 import www.com.petsitternow_app.domain.model.WalkRequest
 import www.com.petsitternow_app.domain.model.WalkStatus
@@ -20,6 +25,7 @@ import javax.inject.Singleton
 class WalkRepositoryImpl @Inject constructor(
     private val firestoreDataSource: WalkFirestoreDataSource,
     private val realtimeDataSource: WalkRealtimeDataSource,
+    private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth
 ) : WalkRepository {
 
@@ -50,14 +56,49 @@ class WalkRepositoryImpl @Inject constructor(
             return@flow
         }
 
-        val result = firestoreDataSource.createWalkRequest(
-            ownerId = currentUserId,
-            petIds = petIds,
-            duration = duration,
-            location = location
-        )
+        try {
+            // Fetch user profile to build owner info
+            val userDoc = firestore.collection("users").document(currentUserId).get().await()
+            val firstName = userDoc.getString("firstName") ?: ""
+            val lastName = userDoc.getString("lastName") ?: ""
+            val name = "$firstName $lastName".trim()
 
-        emit(result)
+            // Fetch pet docs to build pets list
+            val pets = petIds.mapNotNull { petId ->
+                try {
+                    val petDoc = firestore.collection("pets").document(petId).get().await()
+                    val petName = petDoc.getString("name") ?: return@mapNotNull null
+                    PetInfo(id = petId, name = petName)
+                } catch (e: Exception) {
+                    Log.e("WalkRepoImpl", "Error fetching pet $petId", e)
+                    null
+                }
+            }
+
+            if (pets.isEmpty()) {
+                emit(Result.failure(Exception("Impossible de récupérer les informations des animaux")))
+                return@flow
+            }
+
+            val owner = OwnerInfo(
+                id = currentUserId,
+                firstName = firstName,
+                lastName = lastName,
+                name = name,
+                pets = pets
+            )
+
+            val result = firestoreDataSource.createWalkRequest(
+                owner = owner,
+                duration = duration,
+                location = location
+            )
+
+            emit(result)
+        } catch (e: Exception) {
+            Log.e("WalkRepoImpl", "Error creating walk request", e)
+            emit(Result.failure(e))
+        }
     }
 
     override fun cancelWalkRequest(requestId: String): Flow<Result<Unit>> = flow {
@@ -81,7 +122,7 @@ class WalkRepositoryImpl @Inject constructor(
         }
 
         // Verify ownership
-        if (request.ownerId != currentUserId) {
+        if (request.owner.id != currentUserId) {
             emit(Result.failure(Exception("Action non autorisée")))
             return@flow
         }
@@ -126,7 +167,7 @@ class WalkRepositoryImpl @Inject constructor(
         }
 
         // Verify ownership
-        if (request.ownerId != currentUserId) {
+        if (request.owner.id != currentUserId) {
             emit(Result.failure(Exception("Action non autorisée")))
             return@flow
         }

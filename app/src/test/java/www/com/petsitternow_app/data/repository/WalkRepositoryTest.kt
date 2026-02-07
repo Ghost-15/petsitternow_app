@@ -6,6 +6,8 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import www.com.petsitternow_app.data.FakeWalkRepository
+import www.com.petsitternow_app.domain.model.OwnerInfo
+import www.com.petsitternow_app.domain.model.PetInfo
 import www.com.petsitternow_app.domain.model.WalkLocation
 import www.com.petsitternow_app.domain.model.WalkRequest
 import www.com.petsitternow_app.domain.model.WalkStatus
@@ -73,7 +75,7 @@ class WalkRepositoryTest {
 
         val activeWalk = repository.observeActiveWalkRequest("test").first()
         assertNotNull(activeWalk)
-        assertEquals(petIds, activeWalk!!.petIds)
+        assertEquals(petIds.size, activeWalk!!.owner.pets.size)
         assertEquals(WalkStatus.PENDING, activeWalk.status)
     }
 
@@ -121,8 +123,7 @@ class WalkRepositoryTest {
     fun `cancelWalkRequest with completed request returns failure`() = runTest {
         val completedWalk = WalkRequest(
             id = "completed_walk",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
             status = WalkStatus.COMPLETED
@@ -141,8 +142,7 @@ class WalkRepositoryTest {
     fun `dismissWalkRequest with failed request returns success`() = runTest {
         val failedWalk = WalkRequest(
             id = "failed_walk",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
             status = WalkStatus.FAILED
@@ -158,8 +158,7 @@ class WalkRepositoryTest {
     fun `dismissWalkRequest with non-failed request returns failure`() = runTest {
         val pendingWalk = WalkRequest(
             id = "pending_walk",
-            ownerId = "owner1",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
             status = WalkStatus.PENDING
@@ -186,16 +185,14 @@ class WalkRepositoryTest {
         val walks = listOf(
             WalkRequest(
                 id = "walk1",
-                ownerId = "owner1",
-                petIds = listOf("pet1"),
+                owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
                 location = WalkLocation(lat = 48.8566, lng = 2.3522),
                 duration = "30",
                 status = WalkStatus.COMPLETED
             ),
             WalkRequest(
                 id = "walk2",
-                ownerId = "owner1",
-                petIds = listOf("pet2"),
+                owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet2", name = "Buddy"))),
                 location = WalkLocation(lat = 48.8566, lng = 2.3522),
                 duration = "45",
                 status = WalkStatus.CANCELLED

@@ -9,6 +9,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import www.com.petsitternow_app.domain.model.OwnerInfo
 import www.com.petsitternow_app.domain.model.WalkLocation
 import www.com.petsitternow_app.domain.model.WalkRequest
 import www.com.petsitternow_app.domain.model.WalkStatus
@@ -27,9 +28,9 @@ class WalkFirestoreDataSource @Inject constructor(
         private const val COLLECTION_WALK_REQUESTS = "walk_requests"
         private const val COLLECTION_RESPONSES = "responses"
         private const val COLLECTION_PETS = "pets"
-        private const val FIELD_OWNER_ID = "ownerId"
+        private const val FIELD_OWNER_ID = "owner.id"
         private const val FIELD_STATUS = "status"
-        private const val FIELD_ASSIGNED_PETSITTER_ID = "assignedPetsitterId"
+        private const val FIELD_PETSITTER_ID = "petsitter.id"
         private const val FIELD_CREATED_AT = "createdAt"
         private const val FIELD_UPDATED_AT = "updatedAt"
         private const val HISTORY_LIMIT = 50L
@@ -39,15 +40,13 @@ class WalkFirestoreDataSource @Inject constructor(
      * Create a new walk request.
      */
     suspend fun createWalkRequest(
-        ownerId: String,
-        petIds: List<String>,
+        owner: OwnerInfo,
         duration: String,
         location: WalkLocation
     ): Result<String> {
         return try {
             val requestData = mapOf(
-                FIELD_OWNER_ID to ownerId,
-                "petIds" to petIds,
+                "owner" to owner.toMap(),
                 "location" to location.toMap(),
                 "duration" to duration,
                 FIELD_STATUS to WalkStatus.PENDING.value,
@@ -200,7 +199,7 @@ class WalkFirestoreDataSource @Inject constructor(
         )
 
         val listener: ListenerRegistration = firestore.collection(COLLECTION_WALK_REQUESTS)
-            .whereEqualTo(FIELD_ASSIGNED_PETSITTER_ID, petsitterId)
+            .whereEqualTo(FIELD_PETSITTER_ID, petsitterId)
             .whereIn(FIELD_STATUS, activeStatuses)
             .limit(1)
             .addSnapshotListener { snapshot, error ->
@@ -235,7 +234,7 @@ class WalkFirestoreDataSource @Inject constructor(
         )
 
         val listener: ListenerRegistration = firestore.collection(COLLECTION_WALK_REQUESTS)
-            .whereEqualTo(FIELD_ASSIGNED_PETSITTER_ID, petsitterId)
+            .whereEqualTo(FIELD_PETSITTER_ID, petsitterId)
             .whereIn(FIELD_STATUS, finalStatuses)
             .orderBy(FIELD_CREATED_AT, Query.Direction.DESCENDING)
             .limit(HISTORY_LIMIT)

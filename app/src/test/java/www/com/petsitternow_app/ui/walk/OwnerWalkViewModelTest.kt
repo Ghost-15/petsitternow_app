@@ -12,6 +12,8 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import www.com.petsitternow_app.data.FakeWalkRepository
+import www.com.petsitternow_app.domain.model.OwnerInfo
+import www.com.petsitternow_app.domain.model.PetInfo
 import www.com.petsitternow_app.domain.model.WalkLocation
 import www.com.petsitternow_app.domain.model.WalkRequest
 import www.com.petsitternow_app.domain.model.WalkStatus
@@ -96,8 +98,7 @@ class OwnerWalkViewModelTest {
     fun `cancelRequest with completed walk fails`() = runTest {
         val completedWalk = WalkRequest(
             id = "completed",
-            ownerId = "owner",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
             status = WalkStatus.COMPLETED
@@ -115,8 +116,7 @@ class OwnerWalkViewModelTest {
     fun `dismissRequest with failed walk succeeds`() = runTest {
         val failedWalk = WalkRequest(
             id = "failed",
-            ownerId = "owner",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
             status = WalkStatus.FAILED
@@ -132,8 +132,7 @@ class OwnerWalkViewModelTest {
     fun `dismissRequest with pending walk fails`() = runTest {
         val pendingWalk = WalkRequest(
             id = "pending",
-            ownerId = "owner",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
             status = WalkStatus.PENDING
@@ -158,8 +157,7 @@ class OwnerWalkViewModelTest {
     fun `observeActiveWalkRequest returns set walk`() = runTest {
         val walk = WalkRequest(
             id = "walk1",
-            ownerId = "owner",
-            petIds = listOf("pet1"),
+            owner = OwnerInfo(id = "owner", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
             location = WalkLocation(lat = 48.8566, lng = 2.3522),
             duration = "30",
             status = WalkStatus.MATCHING
@@ -187,16 +185,14 @@ class OwnerWalkViewModelTest {
         val walks = listOf(
             WalkRequest(
                 id = "w1",
-                ownerId = "owner",
-                petIds = listOf("pet1"),
+                owner = OwnerInfo(id = "owner", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
                 location = WalkLocation(lat = 48.8566, lng = 2.3522),
                 duration = "30",
                 status = WalkStatus.COMPLETED
             ),
             WalkRequest(
                 id = "w2",
-                ownerId = "owner",
-                petIds = listOf("pet2"),
+                owner = OwnerInfo(id = "owner", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet2", name = "Buddy"))),
                 location = WalkLocation(lat = 48.8566, lng = 2.3522),
                 duration = "45",
                 status = WalkStatus.CANCELLED

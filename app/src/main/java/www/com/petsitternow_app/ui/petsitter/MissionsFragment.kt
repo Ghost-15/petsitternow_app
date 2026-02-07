@@ -269,20 +269,21 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
                         updateMissionStatusUI(effectiveStatus, state)
 
                         // Update owner info from mission data
-                        val ownerName = mission.owner?.let { owner ->
+                        val ownerName = mission.owner.let { owner ->
                             val fullName = "${owner.firstName} ${owner.lastName}".trim()
                             fullName.ifEmpty { owner.name.ifEmpty { "Propriétaire" } }
-                        } ?: "Propriétaire"
+                        }
                         tvOwnerName?.text = ownerName
                         
-                        val initial = mission.owner?.firstName?.firstOrNull()
-                            ?: mission.owner?.name?.firstOrNull()
+                        val initial = mission.owner.firstName.firstOrNull()
+                            ?: mission.owner.name.firstOrNull()
                             ?: 'P'
                         tvOwnerInitial?.text = initial.uppercase().toString()
                         
-                        // Use pet names from owner info if available, otherwise show count
-                        val petNamesText = mission.owner?.petNames?.takeIf { it.isNotEmpty() }?.joinToString(", ")
-                            ?: "${mission.petIds.size} chien${if (mission.petIds.size > 1) "s" else ""}"
+                        // Use pet names from owner info
+                        val petNames = mission.owner.pets.map { it.name }
+                        val petNamesText = petNames.takeIf { it.isNotEmpty() }?.joinToString(", ")
+                            ?: "${mission.owner.pets.size} chien${if (mission.owner.pets.size > 1) "s" else ""}"
                         tvPetNames?.text = petNamesText
                     } ?: run {
                         layoutActiveMission?.visibility = View.GONE
