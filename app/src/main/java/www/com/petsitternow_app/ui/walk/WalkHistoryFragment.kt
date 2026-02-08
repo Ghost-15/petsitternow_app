@@ -15,11 +15,14 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
+import www.com.petsitternow_app.domain.model.WalkRequest
 import www.com.petsitternow_app.domain.navigation.RouteProtectionManager
 import www.com.petsitternow_app.domain.navigation.RouteProtectionResult
 import www.com.petsitternow_app.view.adapter.WalkHistoryAdapter
+import www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment
 import javax.inject.Inject
 
 /**
@@ -77,11 +80,43 @@ class WalkHistoryFragment : Fragment(R.layout.fragment_walk_history) {
     }
 
     private fun setupRecyclerView() {
-        walkHistoryAdapter = WalkHistoryAdapter(emptyList()) { walk ->
-            // Handle walk item click if needed
-        }
+        walkHistoryAdapter = WalkHistoryAdapter(
+            walks = emptyList(),
+            onClick = { },
+            onRatePetsitter = { walk -> showRatingSheet(walk, variant = "petsitter") }
+        )
         recyclerView?.layoutManager = LinearLayoutManager(requireContext())
         recyclerView?.adapter = walkHistoryAdapter
+    }
+
+    private fun showRatingSheet(walk: WalkRequest, variant: String) {
+        val sheet = RatingBottomSheetDialogFragment.newInstance(
+            requestId = walk.id,
+            variant = variant,
+            targetName = if (variant == "petsitter") walk.petsitter?.name else walk.owner.name
+        )
+        sheet.onSubmit = { requestId, score, comment, sheetFragment ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    val result = viewModel.submitWalkRating(requestId, score, comment).first()
+                    sheetFragment.setSubmitFinished()
+                    result.fold(
+                        onSuccess = {
+                            sheetFragment.dismiss()
+                            view?.let { Snackbar.make(it, R.string.rating_success, Snackbar.LENGTH_SHORT).show() }
+                            viewModel.refresh()
+                        },
+                        onFailure = { e ->
+                            view?.let { Snackbar.make(it, e.message ?: getString(R.string.rating_error_send), Snackbar.LENGTH_LONG).show() }
+                        }
+                    )
+                } catch (e: Exception) {
+                    sheetFragment.setSubmitFinished()
+                    view?.let { Snackbar.make(it, e.message ?: getString(R.string.rating_error_send), Snackbar.LENGTH_LONG).show() }
+                }
+            }
+        }
+        sheet.show(childFragmentManager, "RatingBottomSheet")
     }
 
     private fun setupSwipeRefresh() {

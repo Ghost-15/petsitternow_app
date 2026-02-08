@@ -76,6 +76,26 @@ data class WalkLocation(
     }
 }
 
+
+data class WalkRating(
+    val score: Int = 0,
+    val comment: String? = null,
+    val ratedAt: Long? = null
+) {
+    companion object {
+        fun fromMap(map: Map<String, Any?>?): WalkRating? {
+            if (map == null) return null
+            val score = (map["score"] as? Number)?.toInt() ?: return null
+            if (score !in 1..5) return null
+            return WalkRating(
+                score = score,
+                comment = map["comment"] as? String,
+                ratedAt = (map["ratedAt"] as? com.google.firebase.Timestamp)?.toDate()?.time
+            )
+        }
+    }
+}
+
 /**
  * Petsitter info embedded in walk request.
  */
@@ -84,7 +104,8 @@ data class PetsitterInfo(
     val firstName: String = "",
     val lastName: String = "",
     val name: String = "",
-    val photoUrl: String? = null
+    val photoUrl: String? = null,
+    val rating: WalkRating? = null
 ) {
     companion object {
         fun fromMap(map: Map<String, Any?>?): PetsitterInfo? {
@@ -94,7 +115,8 @@ data class PetsitterInfo(
                 firstName = map["firstName"] as? String ?: "",
                 lastName = map["lastName"] as? String ?: "",
                 name = map["name"] as? String ?: "",
-                photoUrl = map["photoUrl"] as? String
+                photoUrl = map["photoUrl"] as? String,
+                rating = WalkRating.fromMap(map["rating"] as? Map<String, Any?>)
             )
         }
     }
@@ -131,7 +153,8 @@ data class OwnerInfo(
     val firstName: String = "",
     val lastName: String = "",
     val name: String = "",
-    val pets: List<PetInfo> = emptyList()
+    val pets: List<PetInfo> = emptyList(),
+    val rating: WalkRating? = null
 ) {
     fun toMap(): Map<String, Any> = mapOf(
         "id" to id,
@@ -151,7 +174,8 @@ data class OwnerInfo(
                 firstName = map["firstName"] as? String ?: "",
                 lastName = map["lastName"] as? String ?: "",
                 name = map["name"] as? String ?: "",
-                pets = petsList
+                pets = petsList,
+                rating = WalkRating.fromMap(map["rating"] as? Map<String, Any?>)
             )
         }
     }

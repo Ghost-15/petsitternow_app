@@ -12,10 +12,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
+import www.com.petsitternow_app.domain.model.WalkRequest
 import www.com.petsitternow_app.view.adapter.MissionHistoryAdapter
+import www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment
 
 /**
  * Fragment displaying mission history for petsitters.
@@ -69,11 +73,47 @@ class MissionHistoryFragment : Fragment(R.layout.fragment_mission_history) {
     }
 
     private fun setupRecyclerView(userRole: String?) {
-        missionHistoryAdapter = MissionHistoryAdapter(emptyList(), userRole) { mission ->
-            // Handle mission item click if needed
-        }
+        missionHistoryAdapter = MissionHistoryAdapter(
+            missions = emptyList(),
+            userRole = userRole,
+            onClick = { },
+            onRatePetsitter = { walk -> showRatingSheet(walk, variant = "petsitter") },
+            onRateOwner = { walk -> showRatingSheet(walk, variant = "owner") }
+        )
         recyclerView?.layoutManager = LinearLayoutManager(requireContext())
         recyclerView?.adapter = missionHistoryAdapter
+    }
+
+    private fun showRatingSheet(walk: WalkRequest, variant: String) {
+        val sheet = RatingBottomSheetDialogFragment.newInstance(
+            requestId = walk.id,
+            variant = variant,
+            targetName = if (variant == "petsitter") walk.petsitter?.name else walk.owner.name
+        )
+        sheet.onSubmit = { requestId, score, comment, sheetFragment ->
+            viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    val flow = if (variant == "petsitter") viewModel.submitWalkRating(requestId, score, comment)
+                    else viewModel.submitOwnerRating(requestId, score, comment)
+                    val result = flow.first()
+                    sheetFragment.setSubmitFinished()
+                    result.fold(
+                        onSuccess = {
+                            sheetFragment.dismiss()
+                            view?.let { Snackbar.make(it, R.string.rating_success, Snackbar.LENGTH_SHORT).show() }
+                            viewModel.refresh()
+                        },
+                        onFailure = { e ->
+                            view?.let { Snackbar.make(it, e.message ?: getString(R.string.rating_error_send), Snackbar.LENGTH_LONG).show() }
+                        }
+                    )
+                } catch (e: Exception) {
+                    sheetFragment.setSubmitFinished()
+                    view?.let { Snackbar.make(it, e.message ?: getString(R.string.rating_error_send), Snackbar.LENGTH_LONG).show() }
+                }
+            }
+        }
+        sheet.show(childFragmentManager, "RatingBottomSheet")
     }
 
     private fun updateLabelsForRole(userRole: String?) {
