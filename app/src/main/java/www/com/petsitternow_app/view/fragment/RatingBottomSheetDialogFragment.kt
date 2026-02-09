@@ -11,18 +11,16 @@ import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.setFragmentResult
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 import www.com.petsitternow_app.R
 
-
 class RatingBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
-    var requestId: String = ""
-    var variant: String = "petsitter" // "petsitter" | "owner"
-    var targetName: String? = null
-
-    var onSubmit: ((requestId: String, score: Int, comment: String?, sheet: RatingBottomSheetDialogFragment) -> Unit)? = null
+    private var requestId: String = ""
+    private var variant: String = "petsitter" // "petsitter" | "owner"
+    private var targetName: String? = null
 
     private var selectedScore: Int = 0
     private val starButtons: MutableList<ImageButton> = mutableListOf()
@@ -90,7 +88,14 @@ class RatingBottomSheetDialogFragment : BottomSheetDialogFragment() {
             val comment = view.findViewById<EditText>(R.id.etComment).text?.toString()?.trim()?.take(500)
             progressSubmit?.visibility = View.VISIBLE
             btnSubmitRating?.isEnabled = false
-            onSubmit?.invoke(requestId, selectedScore, comment.let { if (it.isNullOrEmpty()) null else it }, this)
+            val commentResult = comment.let { if (it.isNullOrEmpty()) null else it }
+            parentFragmentManager.setFragmentResult(RATING_REQUEST_KEY, Bundle().apply {
+                putString(KEY_REQUEST_ID, requestId)
+                putInt(KEY_SCORE, selectedScore)
+                putString(KEY_COMMENT, commentResult)
+                putString(KEY_VARIANT, variant)
+            })
+            dismiss()
         }
     }
 
@@ -111,11 +116,6 @@ class RatingBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
-    fun setSubmitFinished() {
-        progressSubmit?.visibility = View.GONE
-        btnSubmitRating?.isEnabled = selectedScore in 1..5
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         tvRatingTitle = null
@@ -127,6 +127,13 @@ class RatingBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     companion object {
+        const val RATING_REQUEST_KEY = "rating_result_request"
+
+        const val KEY_REQUEST_ID = "requestId"
+        const val KEY_SCORE = "score"
+        const val KEY_COMMENT = "comment"
+        const val KEY_VARIANT = "variant"
+
         private const val ARG_REQUEST_ID = "requestId"
         private const val ARG_VARIANT = "variant"
         private const val ARG_TARGET_NAME = "targetName"

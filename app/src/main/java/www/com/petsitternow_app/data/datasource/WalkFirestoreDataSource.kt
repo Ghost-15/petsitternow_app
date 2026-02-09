@@ -293,6 +293,8 @@ class WalkFirestoreDataSource @Inject constructor(
             val docRef = firestore.collection(COLLECTION_WALK_REQUESTS).document(requestId)
             val doc = docRef.get().await()
             if (!doc.exists()) return Result.failure(Exception("Demande introuvable"))
+            val data = doc.data ?: return Result.failure(Exception("Demande introuvable"))
+            if (data["owner"] == null) return Result.failure(Exception("Aucun propriétaire à noter"))
             val ratingMap = mutableMapOf<String, Any>(
                 "score" to score,
                 "ratedAt" to FieldValue.serverTimestamp()
