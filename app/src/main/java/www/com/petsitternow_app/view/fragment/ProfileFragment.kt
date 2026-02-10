@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -34,6 +35,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     private lateinit var tvOnboardingStatus: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var tvError: TextView
+    private lateinit var btnEditProfile: MaterialButton
+    private lateinit var btnChangePassword: MaterialButton
     private lateinit var btnLogout: MaterialButton
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,6 +46,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         setupClickListeners()
         observeState()
         observeLogoutEvent()
+        observeProfileUpdated()
     }
 
     private fun initViews(view: View) {
@@ -59,6 +63,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         tvOnboardingStatus = view.findViewById(R.id.tvOnboardingStatus)
         progressBar = view.findViewById(R.id.progressBar)
         tvError = view.findViewById(R.id.tvError)
+        btnEditProfile = view.findViewById(R.id.btnEditProfile)
+        btnChangePassword = view.findViewById(R.id.btnChangePassword)
         btnLogout = view.findViewById(R.id.btnLogout)
     }
 
@@ -66,6 +72,36 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         btnLogout.setOnClickListener {
             viewModel.logout()
         }
+
+        btnEditProfile.setOnClickListener {
+            val state = viewModel.state.value
+            val bundle = Bundle().apply {
+                putString("firstName", state.firstName)
+                putString("lastName", state.lastName)
+                putString("phone", state.phone)
+                putString("gender", state.gender)
+                putString("dateOfBirth", state.dateOfBirth)
+                putString("address", state.address)
+                putString("city", state.city)
+                putString("codePostal", state.codePostal)
+            }
+            findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment, bundle)
+        }
+
+        btnChangePassword.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_changePasswordFragment)
+        }
+    }
+
+    private fun observeProfileUpdated() {
+        findNavController().currentBackStackEntry?.savedStateHandle
+            ?.getLiveData<Boolean>("profileUpdated")
+            ?.observe(viewLifecycleOwner) { updated ->
+                if (updated == true) {
+                    viewModel.loadProfileData()
+                    findNavController().currentBackStackEntry?.savedStateHandle?.remove<Boolean>("profileUpdated")
+                }
+            }
     }
 
     private fun observeLogoutEvent() {
@@ -101,6 +137,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                     tvUserType.text = formatUserType(state.userType)
                     tvRole.text = formatRole(state.role)
                     tvOnboardingStatus.text = formatOnboardingStatus(state.onboardingCompleted)
+
+                    // Bouton changer mot de passe (visible seulement pour les utilisateurs password)
+                    btnChangePassword.visibility = if (state.isPasswordUser) View.VISIBLE else View.GONE
 
                     // États UI
                     progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE

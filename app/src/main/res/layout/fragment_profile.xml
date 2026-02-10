@@ -457,11 +457,50 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- Bouton Modifier le profil -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEditProfile"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:text="Modifier le profil"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:background="@drawable/bg_button_gradient"
+                app:backgroundTint="@null"
+                app:cornerRadius="12dp"
+                app:icon="@android:drawable/ic_menu_edit"
+                app:iconTint="@color/white"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+
+            <!-- Bouton Changer le mot de passe (visible uniquement pour les utilisateurs password) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnChangePassword"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="Changer le mot de passe"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                android:textColor="@color/primary"
+                android:visibility="gone"
+                app:cornerRadius="12dp"
+                app:icon="@android:drawable/ic_lock_lock"
+                app:iconTint="@color/primary"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:strokeColor="@color/primary" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="12dp"
                 android:text="Se déconnecter"
                 android:textSize="16sp"
                 android:textAllCaps="false"

@@ -2,6 +2,7 @@ package www.com.petsitternow_app
 
 import android.app.Application
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +21,8 @@ class PetSitterNowApp : Application() {
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     override fun onCreate() {
+        // Forcer le thème de l'app (désactive les couleurs dynamiques Material 3)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         super.onCreate()
         requestFcmTokenAndSave()
     }

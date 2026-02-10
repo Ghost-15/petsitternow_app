@@ -20,6 +20,7 @@ import javax.inject.Inject
 data class ProfileState(
     // Firebase Auth
     val email: String = "",
+    val isPasswordUser: Boolean = false,
     
     // Firestore (document users/{uid})
     val firstName: String = "",
@@ -89,9 +90,13 @@ class ProfileViewModel @Inject constructor(
                     else -> null
                 }
 
-                // 3. Mettre à jour l'état
+                // 3. Détecter si l'utilisateur utilise le provider password
+                val isPasswordUser = user.providerData.any { it.providerId == "password" }
+
+                // 4. Mettre à jour l'état
                 _state.value = ProfileState(
                     email = user.email ?: "-",
+                    isPasswordUser = isPasswordUser,
                     firstName = doc.getString("firstName") ?: "-",
                     lastName = doc.getString("lastName") ?: "-",
                     phone = doc.getString("phone") ?: "-",
