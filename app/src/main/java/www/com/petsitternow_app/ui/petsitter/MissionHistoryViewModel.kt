@@ -108,4 +108,8 @@ class MissionHistoryViewModel @Inject constructor(
     fun refresh() {
         loadHistory()
     }
+
+    fun submitWalkRating(requestId: String, score: Int, comment: String?) = walkRepository.submitWalkRating(requestId, score, comment)
+
+    fun submitOwnerRating(requestId: String, score: Int, comment: String?) = walkRepository.submitOwnerRating(requestId, score, comment)
 }

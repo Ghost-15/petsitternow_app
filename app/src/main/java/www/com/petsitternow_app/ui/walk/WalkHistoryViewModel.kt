@@ -65,4 +65,6 @@ class WalkHistoryViewModel @Inject constructor(
     fun refresh() {
         loadWalkHistory()
     }
+
+    fun submitWalkRating(requestId: String, score: Int, comment: String?) = walkRepository.submitWalkRating(requestId, score, comment)
 }

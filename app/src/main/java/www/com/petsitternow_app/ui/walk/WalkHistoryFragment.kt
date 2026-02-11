@@ -17,9 +17,11 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
+import www.com.petsitternow_app.domain.model.WalkRequest
 import www.com.petsitternow_app.domain.navigation.RouteProtectionManager
 import www.com.petsitternow_app.domain.navigation.RouteProtectionResult
 import www.com.petsitternow_app.view.adapter.WalkHistoryAdapter
+import www.com.petsitternow_app.view.fragment.RatingSheetHelper
 import javax.inject.Inject
 
 /**
@@ -49,6 +51,9 @@ class WalkHistoryFragment : Fragment(R.layout.fragment_walk_history) {
             when (routeProtectionManager.protectOwnerRoute()) {
                 RouteProtectionResult.Allowed -> {
                     initViews(view)
+                    RatingSheetHelper.setupRatingResultListener(this@WalkHistoryFragment, { viewModel.refresh() }) { r, s, c, _ ->
+                        viewModel.submitWalkRating(r, s, c)
+                    }
                     setupRecyclerView()
                     setupSwipeRefresh()
                     observeState()
@@ -77,11 +82,17 @@ class WalkHistoryFragment : Fragment(R.layout.fragment_walk_history) {
     }
 
     private fun setupRecyclerView() {
-        walkHistoryAdapter = WalkHistoryAdapter(emptyList()) { walk ->
-            // Handle walk item click if needed
-        }
+        walkHistoryAdapter = WalkHistoryAdapter(
+            walks = emptyList(),
+            onClick = { },
+            onRatePetsitter = { walk -> showRatingSheet(walk, variant = "petsitter") }
+        )
         recyclerView?.layoutManager = LinearLayoutManager(requireContext())
         recyclerView?.adapter = walkHistoryAdapter
+    }
+
+    private fun showRatingSheet(walk: WalkRequest, variant: String) {
+        RatingSheetHelper.showRatingSheet(this, walk, variant)
     }
 
     private fun setupSwipeRefresh() {

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/bg_bottom_sheet">
+
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_bottom_sheet_handle" />
+
+    <TextView
+        android:id="@+id/tvRatingTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/rating_title_petsitter"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary" />
+
+    <TextView
+        android:id="@+id/tvRatingDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/rating_description_petsitter"
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/rating_score_label"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary" />
+
+    <LinearLayout
+        android:id="@+id/layoutStars"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageButton
+            android:id="@+id/btnStar1"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="8dp"
+            android:contentDescription="@string/rating_star"
+            android:src="@drawable/ic_star_outline"
+            app:tint="@color/star_outline" />
+
+        <ImageButton
+            android:id="@+id/btnStar2"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="8dp"
+            android:contentDescription="@string/rating_star"
+            android:src="@drawable/ic_star_outline"
+            app:tint="@color/star_outline" />
+
+        <ImageButton
+            android:id="@+id/btnStar3"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="8dp"
+            android:contentDescription="@string/rating_star"
+            android:src="@drawable/ic_star_outline"
+            app:tint="@color/star_outline" />
+
+        <ImageButton
+            android:id="@+id/btnStar4"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="8dp"
+            android:contentDescription="@string/rating_star"
+            android:src="@drawable/ic_star_outline"
+            app:tint="@color/star_outline" />
+
+        <ImageButton
+            android:id="@+id/btnStar5"
+            style="?attr/borderlessButtonStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="8dp"
+            android:contentDescription="@string/rating_star"
+            android:src="@drawable/ic_star_outline"
+            app:tint="@color/star_outline" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/rating_comment_label"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary" />
+
+    <EditText
+        android:id="@+id/etComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:minLines="3"
+        android:maxLines="5"
+        android:maxLength="500"
+        android:hint="@string/rating_comment_hint"
+        android:inputType="textMultiLine|textCapSentences"
+        android:background="@drawable/bg_input_field"
+        android:padding="12dp"
+        android:textSize="14sp"
+        android:textColor="@color/text_primary"
+        android:gravity="top" />
+
+    <TextView
+        android:id="@+id/tvCommentCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="4dp"
+        android:text="0/500"
+        android:textSize="12sp"
+        android:textColor="@color/text_muted" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSubmitRating"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/rating_submit"
+        android:textColor="@color/white"
+        android:enabled="false"
+        app:backgroundTint="@color/primary" />
+
+    <ProgressBar
+        android:id="@+id/progressSubmit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
+</LinearLayout>

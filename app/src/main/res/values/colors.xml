@@ -14,4 +14,6 @@
     <color name="border">#E2E8F0</color>
     <color name="pastel_primary">#93C5FD</color>
     <color name="pastel_button">#60A5FA</color>
+    <color name="star_outline">#9CA3AF</color>
+    <color name="star_filled">#F59E0B</color>
 </resources>

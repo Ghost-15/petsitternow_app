@@ -1,10 +1,13 @@
 package www.com.petsitternow_app.view.adapter
 
+import android.widget.ImageView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import www.com.petsitternow_app.R
 import www.com.petsitternow_app.domain.model.WalkRequest
 import www.com.petsitternow_app.domain.model.WalkStatus
@@ -15,7 +18,8 @@ import java.util.Locale
 
 class WalkHistoryAdapter(
     private var walks: List<WalkRequest>,
-    private val onClick: (WalkRequest) -> Unit
+    private val onClick: (WalkRequest) -> Unit,
+    private val onRatePetsitter: ((WalkRequest) -> Unit)? = null
 ) : RecyclerView.Adapter<WalkHistoryAdapter.WalkHistoryViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WalkHistoryViewHolder {
@@ -43,6 +47,14 @@ class WalkHistoryAdapter(
         private val tvPetNames: TextView = itemView.findViewById(R.id.tvPetNames)
         private val tvDuration: TextView = itemView.findViewById(R.id.tvDuration)
         private val tvActualDuration: TextView = itemView.findViewById(R.id.tvActualDuration)
+        private val layoutRating: View = itemView.findViewById(R.id.layoutRating)
+        private val layoutRatingStars: View = itemView.findViewById(R.id.layoutRatingStars)
+        private val ivStar1: ImageView = itemView.findViewById(R.id.ivStar1)
+        private val ivStar2: ImageView = itemView.findViewById(R.id.ivStar2)
+        private val ivStar3: ImageView = itemView.findViewById(R.id.ivStar3)
+        private val ivStar4: ImageView = itemView.findViewById(R.id.ivStar4)
+        private val ivStar5: ImageView = itemView.findViewById(R.id.ivStar5)
+        private val btnRatePetsitter: MaterialButton = itemView.findViewById(R.id.btnRatePetsitter)
 
         fun bind(walk: WalkRequest) {
             // Date
@@ -106,6 +118,30 @@ class WalkHistoryAdapter(
                 "-"
             }
             tvActualDuration.text = actualDuration
+
+            // Rating row: only for completed walks with a petsitter (owner history)
+            val isCompletedWithPetsitter = walk.status == WalkStatus.COMPLETED && walk.petsitter != null
+            if (isCompletedWithPetsitter) {
+                layoutRating.visibility = View.VISIBLE
+                val rating = walk.petsitter?.rating
+                if (rating != null) {
+                    layoutRatingStars.visibility = View.VISIBLE
+                    btnRatePetsitter.visibility = View.GONE
+                    val starFilled = ContextCompat.getColor(itemView.context, R.color.star_filled)
+                    val starOutline = ContextCompat.getColor(itemView.context, R.color.star_outline)
+                    val score = rating.score.coerceIn(1, 5)
+                    listOf(ivStar1, ivStar2, ivStar3, ivStar4, ivStar5).forEachIndexed { index, iv ->
+                        iv.setImageResource(if (index < score) R.drawable.ic_star else R.drawable.ic_star_outline)
+                        iv.setColorFilter(if (index < score) starFilled else starOutline)
+                    }
+                } else {
+                    layoutRatingStars.visibility = View.GONE
+                    btnRatePetsitter.visibility = View.VISIBLE
+                    btnRatePetsitter.setOnClickListener { onRatePetsitter?.invoke(walk) }
+                }
+            } else {
+                layoutRating.visibility = View.GONE
+            }
 
             itemView.setOnClickListener {
                 onClick(walk)

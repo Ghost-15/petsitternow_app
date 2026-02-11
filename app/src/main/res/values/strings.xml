@@ -60,4 +60,21 @@
     <string name="decline">Refuser</string>
     <string name="pet_default_name">Chien</string>
 
+    <string name="rating_title_petsitter">Noter le petsitter</string>
+    <string name="rating_title_owner">Noter le propriétaire</string>
+    <string name="rating_description_petsitter">Comment s\'est passée la promenade ?</string>
+    <string name="rating_description_owner">Comment s\'est passée la mission ?</string>
+    <string name="rating_description_with_name">Comment s\'est passée la promenade avec %1$s ?</string>
+    <string name="rating_description_owner_with_name">Comment s\'est passée la mission avec %1$s ?</string>
+    <string name="rating_score_label">Note (obligatoire)</string>
+    <string name="rating_star">Étoile</string>
+    <string name="rating_comment_label">Commentaire (optionnel)</string>
+    <string name="rating_comment_hint">Votre avis en quelques mots…</string>
+    <string name="rating_submit">Envoyer ma note</string>
+    <string name="btn_rate_petsitter">Noter le petsitter</string>
+    <string name="btn_rate_owner">Noter le propriétaire</string>
+    <string name="rating_success">Merci pour votre avis !</string>
+    <string name="rating_error_select">Veuillez sélectionner une note</string>
+    <string name="rating_error_send">Erreur lors de l\'envoi</string>
+
 </resources>
