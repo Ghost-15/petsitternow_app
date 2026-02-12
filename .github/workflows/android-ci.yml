@@ -24,7 +24,7 @@ jobs:
 
       # --- Secrets ---
       - name: Decode google-services.json
-        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > app/google-services.json
+        run: printf '%s' "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > app/google-services.json
 
       - name: Create local.properties with Mapbox tokens
         run: |
