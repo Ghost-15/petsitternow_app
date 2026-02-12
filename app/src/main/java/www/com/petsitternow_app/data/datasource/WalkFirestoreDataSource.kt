@@ -254,6 +254,64 @@ class WalkFirestoreDataSource @Inject constructor(
         awaitClose { listener.remove() }
     }
 
+
+    suspend fun submitWalkRating(
+        requestId: String,
+        score: Int,
+        comment: String?
+    ): Result<Unit> {
+        return try {
+            val docRef = firestore.collection(COLLECTION_WALK_REQUESTS).document(requestId)
+            val doc = docRef.get().await()
+            if (!doc.exists()) return Result.failure(Exception("Demande introuvable"))
+            val data = doc.data ?: return Result.failure(Exception("Demande introuvable"))
+            if (data["petsitter"] == null) return Result.failure(Exception("Aucun petsitter à noter"))
+            val ratingMap = mutableMapOf<String, Any>(
+                "score" to score,
+                "ratedAt" to FieldValue.serverTimestamp()
+            )
+            if (!comment.isNullOrBlank()) ratingMap["comment"] = comment.trim()
+            docRef.update(
+                mapOf(
+                    "petsitter.rating" to ratingMap,
+                    FIELD_UPDATED_AT to FieldValue.serverTimestamp()
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
+    suspend fun submitOwnerRating(
+        requestId: String,
+        score: Int,
+        comment: String?
+    ): Result<Unit> {
+        return try {
+            val docRef = firestore.collection(COLLECTION_WALK_REQUESTS).document(requestId)
+            val doc = docRef.get().await()
+            if (!doc.exists()) return Result.failure(Exception("Demande introuvable"))
+            val data = doc.data ?: return Result.failure(Exception("Demande introuvable"))
+            if (data["owner"] == null) return Result.failure(Exception("Aucun propriétaire à noter"))
+            val ratingMap = mutableMapOf<String, Any>(
+                "score" to score,
+                "ratedAt" to FieldValue.serverTimestamp()
+            )
+            if (!comment.isNullOrBlank()) ratingMap["comment"] = comment.trim()
+            docRef.update(
+                mapOf(
+                    "owner.rating" to ratingMap,
+                    FIELD_UPDATED_AT to FieldValue.serverTimestamp()
+                )
+            ).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     /**
      * Create mission response (accept or decline).
      */

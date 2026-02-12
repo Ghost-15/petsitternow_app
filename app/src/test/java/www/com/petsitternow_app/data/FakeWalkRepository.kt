@@ -143,6 +143,14 @@ class FakeWalkRepository : WalkRepository {
 
     override fun observeActiveWalk(requestId: String): Flow<ActiveWalk?> = getActiveWalkFlow(requestId)
 
+    override fun submitWalkRating(requestId: String, score: Int, comment: String?): Flow<Result<Unit>> = flow {
+        emit(Result.success(Unit))
+    }
+
+    override fun submitOwnerRating(requestId: String, score: Int, comment: String?): Flow<Result<Unit>> = flow {
+        emit(Result.success(Unit))
+    }
+
     private fun getActiveWalkFlow(requestId: String): MutableStateFlow<ActiveWalk?> {
         return activeWalkFlows.getOrPut(requestId) {
             MutableStateFlow(activeWalks[requestId])

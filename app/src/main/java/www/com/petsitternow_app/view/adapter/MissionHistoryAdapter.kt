@@ -3,8 +3,11 @@ package www.com.petsitternow_app.view.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import www.com.petsitternow_app.R
 import www.com.petsitternow_app.domain.model.WalkRequest
 import www.com.petsitternow_app.domain.model.WalkStatus
@@ -16,7 +19,9 @@ import java.util.Locale
 class MissionHistoryAdapter(
     private var missions: List<WalkRequest>,
     private val userRole: String?,
-    private val onClick: (WalkRequest) -> Unit
+    private val onClick: (WalkRequest) -> Unit,
+    private val onRatePetsitter: ((WalkRequest) -> Unit)? = null,
+    private val onRateOwner: ((WalkRequest) -> Unit)? = null
 ) : RecyclerView.Adapter<MissionHistoryAdapter.MissionHistoryViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MissionHistoryViewHolder {
@@ -44,6 +49,14 @@ class MissionHistoryAdapter(
         private val tvPetNames: TextView = itemView.findViewById(R.id.tvPetNames)
         private val tvDuration: TextView = itemView.findViewById(R.id.tvDuration)
         private val tvActualDuration: TextView = itemView.findViewById(R.id.tvActualDuration)
+        private val layoutRating: View = itemView.findViewById(R.id.layoutRating)
+        private val layoutRatingStars: View = itemView.findViewById(R.id.layoutRatingStars)
+        private val ivStar1: ImageView = itemView.findViewById(R.id.ivStar1)
+        private val ivStar2: ImageView = itemView.findViewById(R.id.ivStar2)
+        private val ivStar3: ImageView = itemView.findViewById(R.id.ivStar3)
+        private val ivStar4: ImageView = itemView.findViewById(R.id.ivStar4)
+        private val ivStar5: ImageView = itemView.findViewById(R.id.ivStar5)
+        private val btnRate: MaterialButton = itemView.findViewById(R.id.btnRate)
 
         fun bind(mission: WalkRequest) {
             // Date
@@ -115,6 +128,38 @@ class MissionHistoryAdapter(
                 "-"
             }
             tvActualDuration.text = actualDuration
+
+            // Rating row: only for completed missions
+            val isCompleted = mission.status == WalkStatus.COMPLETED
+            if (isCompleted && userRole != null) {
+                layoutRating.visibility = View.VISIBLE
+                val isOwner = userRole == "owner"
+                val rating = if (isOwner) mission.petsitter?.rating else mission.owner.rating
+                val hasRateButton = if (isOwner) mission.petsitter != null && mission.petsitter?.rating == null
+                else mission.owner.rating == null
+                if (rating != null) {
+                    layoutRatingStars.visibility = View.VISIBLE
+                    btnRate.visibility = View.GONE
+                    val starFilled = ContextCompat.getColor(itemView.context, R.color.star_filled)
+                    val starOutline = ContextCompat.getColor(itemView.context, R.color.star_outline)
+                    val score = rating.score.coerceIn(1, 5)
+                    listOf(ivStar1, ivStar2, ivStar3, ivStar4, ivStar5).forEachIndexed { index, iv ->
+                        iv.setImageResource(if (index < score) R.drawable.ic_star else R.drawable.ic_star_outline)
+                        iv.setColorFilter(if (index < score) starFilled else starOutline)
+                    }
+                } else if (hasRateButton) {
+                    layoutRatingStars.visibility = View.GONE
+                    btnRate.visibility = View.VISIBLE
+                    btnRate.text = itemView.context.getString(if (isOwner) R.string.btn_rate_petsitter else R.string.btn_rate_owner)
+                    btnRate.setOnClickListener {
+                        if (isOwner) onRatePetsitter?.invoke(mission) else onRateOwner?.invoke(mission)
+                    }
+                } else {
+                    layoutRating.visibility = View.GONE
+                }
+            } else {
+                layoutRating.visibility = View.GONE
+            }
 
             itemView.setOnClickListener {
                 onClick(mission)

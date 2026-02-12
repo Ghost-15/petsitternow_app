@@ -67,4 +67,24 @@ interface WalkRepository {
      * @return Flow of walk request list
      */
     fun observeWalkHistory(ownerId: String): Flow<List<WalkRequest>>
+
+    /**
+     * Submit rating for petsitter (owner only, completed walk).
+     *
+     * @param requestId Walk request ID
+     * @param score 1-5
+     * @param comment Optional comment
+     * @return Flow emitting Result
+     */
+    fun submitWalkRating(requestId: String, score: Int, comment: String?): Flow<Result<Unit>>
+
+    /**
+     * Submit rating for owner (petsitter only, completed mission).
+     *
+     * @param requestId Walk request ID
+     * @param score 1-5
+     * @param comment Optional comment
+     * @return Flow emitting Result
+     */
+    fun submitOwnerRating(requestId: String, score: Int, comment: String?): Flow<Result<Unit>>
 }

@@ -194,4 +194,78 @@ class WalkRepositoryImpl @Inject constructor(
     override fun observeWalkHistory(ownerId: String): Flow<List<WalkRequest>> {
         return firestoreDataSource.observeWalkHistory(ownerId)
     }
+
+    override fun submitWalkRating(requestId: String, score: Int, comment: String?): Flow<Result<Unit>> = flow {
+        val currentUserId = auth.currentUser?.uid
+        if (currentUserId == null) {
+            emit(Result.failure(Exception("Non authentifié")))
+            return@flow
+        }
+        val requestResult = firestoreDataSource.getWalkRequest(requestId)
+        if (requestResult.isFailure) {
+            emit(Result.failure(requestResult.exceptionOrNull() ?: Exception("Erreur inconnue")))
+            return@flow
+        }
+        val request = requestResult.getOrNull() ?: run {
+            emit(Result.failure(Exception("Demande introuvable")))
+            return@flow
+        }
+        if (request.owner.id != currentUserId) {
+            emit(Result.failure(Exception("Action non autorisée")))
+            return@flow
+        }
+        if (request.status != WalkStatus.COMPLETED) {
+            emit(Result.failure(Exception("Seules les promenades terminées peuvent être notées")))
+            return@flow
+        }
+        if (request.petsitter?.rating != null) {
+            emit(Result.failure(Exception("Vous avez déjà noté ce petsitter pour cette promenade")))
+            return@flow
+        }
+        if (request.petsitter?.id.isNullOrBlank()) {
+            emit(Result.failure(Exception("Aucun petsitter à noter pour cette promenade")))
+            return@flow
+        }
+        if (score !in 1..5) {
+            emit(Result.failure(Exception("La note doit être entre 1 et 5")))
+            return@flow
+        }
+        val commentTrimmed = comment?.take(500)?.trim()
+        emit(firestoreDataSource.submitWalkRating(requestId, score, commentTrimmed.let { if (it.isNullOrEmpty()) null else it }))
+    }
+
+    override fun submitOwnerRating(requestId: String, score: Int, comment: String?): Flow<Result<Unit>> = flow {
+        val currentUserId = auth.currentUser?.uid
+        if (currentUserId == null) {
+            emit(Result.failure(Exception("Non authentifié")))
+            return@flow
+        }
+        val requestResult = firestoreDataSource.getWalkRequest(requestId)
+        if (requestResult.isFailure) {
+            emit(Result.failure(requestResult.exceptionOrNull() ?: Exception("Erreur inconnue")))
+            return@flow
+        }
+        val request = requestResult.getOrNull() ?: run {
+            emit(Result.failure(Exception("Demande introuvable")))
+            return@flow
+        }
+        if (request.petsitter?.id != currentUserId) {
+            emit(Result.failure(Exception("Action non autorisée")))
+            return@flow
+        }
+        if (request.status != WalkStatus.COMPLETED) {
+            emit(Result.failure(Exception("Seules les missions terminées peuvent être notées")))
+            return@flow
+        }
+        if (request.owner.rating != null) {
+            emit(Result.failure(Exception("Vous avez déjà noté ce propriétaire pour cette mission")))
+            return@flow
+        }
+        if (score !in 1..5) {
+            emit(Result.failure(Exception("La note doit être entre 1 et 5")))
+            return@flow
+        }
+        val commentTrimmed = comment?.take(500)?.trim()
+        emit(firestoreDataSource.submitOwnerRating(requestId, score, commentTrimmed.let { if (it.isNullOrEmpty()) null else it }))
+    }
 }
