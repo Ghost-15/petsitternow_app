@@ -23,13 +23,10 @@ jobs:
           distribution: 'temurin'
 
       # --- Secrets ---
-      - name: Decode google-services.json
+      - name: Create google-services.json
         env:
-          GOOGLE_SERVICES_B64: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: |
-          echo "$GOOGLE_SERVICES_B64" | base64 -d > app/google-services.json
-          echo "google-services.json size: $(wc -c < app/google-services.json) bytes"
-          head -c 1 app/google-services.json | od -c | head -1
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo "$GOOGLE_SERVICES_JSON" > app/google-services.json
 
       - name: Create local.properties with Mapbox tokens
         run: |
