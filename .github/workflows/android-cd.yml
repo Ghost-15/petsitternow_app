@@ -1,9 +1,11 @@
 name: Android CD
 
 on:
-  # TODO: remettre push: branches: [main] une fois validé
-  pull_request:
+  push:
     branches: [ main ]
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
 
 jobs:
   distribute:
@@ -50,6 +52,8 @@ jobs:
         run: ./gradlew testDebugUnitTest --no-daemon
 
       - name: Build debug APK
+        env:
+          VERSION_CODE: ${{ github.run_number }}
         run: ./gradlew assembleDebug --no-daemon
 
       # --- Firebase App Distribution ---
