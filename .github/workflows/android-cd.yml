@@ -1,11 +1,9 @@
 name: Android CD
 
 on:
-  push:
+  # TODO: remettre push: branches: [main] une fois validé
+  pull_request:
     branches: [ main ]
-    paths-ignore:
-      - '*.md'
-      - '.gitignore'
 
 jobs:
   distribute:
