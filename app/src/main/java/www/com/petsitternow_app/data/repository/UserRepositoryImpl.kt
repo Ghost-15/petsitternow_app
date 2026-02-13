@@ -71,7 +71,7 @@ class UserRepositoryImpl @Inject constructor(
                 "address" to address,
                 "city" to city,
                 "codePostal" to codePostal,
-                "updatedAt" to java.time.Instant.now().toString()
+                "updatedAt" to System.currentTimeMillis()
             )
 
             firestore.collection("users")
