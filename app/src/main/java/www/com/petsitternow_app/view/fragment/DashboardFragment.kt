@@ -508,6 +508,37 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         btnCancel?.setOnClickListener { walkViewModel.cancelWalkRequest() }
         btnDismiss?.setOnClickListener { walkViewModel.dismissFailedRequest() }
 
+        // Walk Completed Card
+        val layoutWalkCompleted = view.findViewById<View>(R.id.layoutWalkCompleted)
+        val tvWalkCompletedSubtitle = layoutWalkCompleted?.findViewById<TextView>(R.id.tvWalkCompletedSubtitle)
+        val btnRatePetsitter = layoutWalkCompleted?.findViewById<MaterialButton>(R.id.btnRatePetsitter)
+        val btnDismissWalkCompleted = layoutWalkCompleted?.findViewById<MaterialButton>(R.id.btnDismissWalkCompleted)
+
+        btnRatePetsitter?.setOnClickListener {
+            val completed = walkViewModel.uiState.value.completedWalk ?: return@setOnClickListener
+            val sheet = www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.newInstance(
+                requestId = completed.requestId,
+                variant = "petsitter",
+                targetName = completed.petsitterName
+            )
+            sheet.show(childFragmentManager, "rating_sheet")
+        }
+
+        btnDismissWalkCompleted?.setOnClickListener {
+            walkViewModel.dismissCompletedWalk()
+        }
+
+        childFragmentManager.setFragmentResultListener(
+            www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.RATING_REQUEST_KEY,
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val requestId = bundle.getString(www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.KEY_REQUEST_ID) ?: return@setFragmentResultListener
+            val score = bundle.getInt(www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.KEY_SCORE)
+            val comment = bundle.getString(www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.KEY_COMMENT)
+            walkViewModel.submitPetsitterRating(requestId, score, comment)
+            btnRatePetsitter?.visibility = View.GONE
+        }
+
         // Setup Walk Tracking Map inside the card
         val mapContainer = walkStatusCard?.findViewById<androidx.cardview.widget.CardView>(R.id.mapContainer)
         walkTrackingMapView = WalkTrackingMapView(requireContext())
@@ -577,6 +608,17 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 walkViewModel.uiState.collect { state ->
+                    // Completed walk a priorité
+                    state.completedWalk?.let { completed ->
+                        walkStatusCard?.visibility = View.GONE
+                        layoutWalkCompleted?.visibility = View.VISIBLE
+                        tvWalkCompletedSubtitle?.text = "${completed.petsitterName} a ramené votre compagnon avec succès"
+                        btnRatePetsitter?.text = "Noter ${completed.petsitterName}"
+                        updateFabVisibility(false)
+                        return@collect
+                    }
+
+                    layoutWalkCompleted?.visibility = View.GONE
                     val hasActiveWalk = state.activeWalk != null
                     walkStatusCard?.visibility = if (hasActiveWalk) View.VISIBLE else View.GONE
                     updateFabVisibility(hasActiveWalk)
@@ -667,16 +709,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
                                 btnDismiss?.visibility = View.GONE
                             }
                             WalkStatus.COMPLETED -> {
-                                tvStatusTitle?.text = "Promenade terminée"
-                                tvStatusSubtitle?.text = "Votre chien est de retour"
-                                viewStatusBackground?.setBackgroundResource(R.drawable.bg_walk_status_completed)
-                                ivStatusIcon?.setImageResource(R.drawable.ic_check_circle)
-                                ivStatusIcon?.visibility = View.VISIBLE
-                                progressStatus?.visibility = View.GONE
-                                layoutTimer?.visibility = View.GONE
-                                layoutPetsitterInfo?.visibility = View.GONE
-                                btnCancel?.visibility = View.GONE
-                                btnDismiss?.visibility = View.VISIBLE
+                                walkStatusCard?.visibility = View.GONE
                             }
                             WalkStatus.FAILED, WalkStatus.EXPIRED -> {
                                 tvStatusTitle?.text = "Échec de la demande"

@@ -1,9 +1,11 @@
 package www.com.petsitternow_app.ui.walk
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,13 +25,19 @@ import javax.inject.Inject
 /**
  * UI state for owner walk screen.
  */
+data class CompletedWalkInfo(
+    val requestId: String,
+    val petsitterName: String
+)
+
 data class OwnerWalkUiState(
     val isLoading: Boolean = false,
     val pets: List<Pet> = emptyList(),
     val activeWalk: WalkRequest? = null,
     val activeWalkDetails: ActiveWalk? = null,
     val error: String? = null,
-    val isRequestingWalk: Boolean = false
+    val isRequestingWalk: Boolean = false,
+    val completedWalk: CompletedWalkInfo? = null
 )
 
 /**
@@ -41,11 +49,16 @@ class OwnerWalkViewModel @Inject constructor(
     private val walkRepository: WalkRepository,
     private val petRepository: PetRepository,
     private val locationProvider: LocationProvider,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
+
+    private val prefs = appContext.getSharedPreferences("owner_prefs", Context.MODE_PRIVATE)
 
     private val _uiState = MutableStateFlow(OwnerWalkUiState())
     val uiState: StateFlow<OwnerWalkUiState> = _uiState.asStateFlow()
+    private var lastActiveWalkId: String? = null
+    private var lastActiveWalk: WalkRequest? = null
 
     init {
         loadPets()
@@ -92,16 +105,66 @@ class OwnerWalkViewModel @Inject constructor(
             walkRepository.observeActiveWalkRequest(userId)
                 .catch { /* Ignore errors for observation */ }
                 .collectLatest { walkRequest ->
-                    _uiState.value = _uiState.value.copy(
-                        activeWalk = walkRequest,
-                        error = null
-                    )
+                    if (walkRequest != null) {
+                        lastActiveWalkId = walkRequest.id
+                        lastActiveWalk = walkRequest
+                        _uiState.value = _uiState.value.copy(
+                            activeWalk = walkRequest,
+                            error = null
+                        )
+                        observeActiveWalkDetails(walkRequest.id)
+                    } else {
+                        // La walk a disparu du query. Si on avait une walk active avant,
+                        // vérifier si elle est passée à COMPLETED via une lecture one-shot.
+                        val previousWalkId = lastActiveWalkId
+                        val previousWalk = lastActiveWalk
+                        lastActiveWalkId = null
+                        lastActiveWalk = null
 
-                    // If we have an active walk, observe its real-time details
-                    walkRequest?.id?.let { requestId ->
-                        observeActiveWalkDetails(requestId)
+                        if (previousWalkId != null && previousWalk != null) {
+                            checkIfCompleted(previousWalkId, previousWalk)
+                        } else {
+                            _uiState.value = _uiState.value.copy(
+                                activeWalk = null,
+                                error = null
+                            )
+                        }
                     }
                 }
+        }
+    }
+
+    private fun checkIfCompleted(walkId: String, previousWalk: WalkRequest) {
+        viewModelScope.launch {
+            try {
+                walkRepository.observeWalkRequest(walkId)
+                    .catch { /* Ignore */ }
+                    .collectLatest { walkRequest ->
+                        if (walkRequest?.status == WalkStatus.COMPLETED) {
+                            val petsitterName = walkRequest.petsitter?.let { ps ->
+                                "${ps.firstName} ${ps.lastName}".trim().ifEmpty { ps.name }
+                            } ?: "le petsitter"
+
+                            _uiState.value = _uiState.value.copy(
+                                activeWalk = null,
+                                completedWalk = CompletedWalkInfo(
+                                    requestId = walkId,
+                                    petsitterName = petsitterName
+                                )
+                            )
+                        } else {
+                            // Pas completed (cancelled, failed, etc.)
+                            _uiState.value = _uiState.value.copy(
+                                activeWalk = null,
+                                error = null
+                            )
+                        }
+                        // One-shot: cancel after first emission
+                        return@collectLatest
+                    }
+            } catch (_: Exception) {
+                _uiState.value = _uiState.value.copy(activeWalk = null)
+            }
         }
     }
 
@@ -201,6 +264,18 @@ class OwnerWalkViewModel @Inject constructor(
     /**
      * Clear error message.
      */
+    fun dismissCompletedWalk() {
+        _uiState.value = _uiState.value.copy(completedWalk = null)
+    }
+
+    fun submitPetsitterRating(requestId: String, score: Int, comment: String?) {
+        viewModelScope.launch {
+            walkRepository.submitWalkRating(requestId, score, comment)
+                .catch { /* Ignore */ }
+                .collectLatest { /* Rating submitted */ }
+        }
+    }
+
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }

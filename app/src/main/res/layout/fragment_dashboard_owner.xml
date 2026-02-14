@@ -70,6 +70,16 @@
                 android:layout_marginBottom="16dp"
                 android:visibility="gone" />
 
+            <!-- Walk Completed Card -->
+            <include
+                android:id="@+id/layoutWalkCompleted"
+                layout="@layout/layout_walk_completed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

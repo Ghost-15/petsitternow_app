@@ -87,4 +87,6 @@ interface WalkRepository {
      * @return Flow emitting Result
      */
     fun submitOwnerRating(requestId: String, score: Int, comment: String?): Flow<Result<Unit>>
+
+    fun observeWalkRequest(requestId: String): Flow<WalkRequest?>
 }
