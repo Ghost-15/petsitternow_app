@@ -68,6 +68,7 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
     private var layoutWaiting: View? = null
     private var layoutOffline: View? = null
 
+
     // Map view
     private var mapContainer: androidx.cardview.widget.CardView? = null
     private var walkTrackingMapView: WalkTrackingMapView? = null
@@ -135,6 +136,7 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
         layoutWaiting = view.findViewById(R.id.layoutOnlineWaiting)
         layoutOffline = view.findViewById(R.id.layoutOffline)
 
+
         // Map view - inside the active mission card
         mapContainer = layoutActiveMission?.findViewById(R.id.mapContainer)
         walkTrackingMapView = WalkTrackingMapView(requireContext()).apply {
@@ -161,6 +163,7 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
         btnStartWalk?.setOnClickListener { viewModel.startWalk() }
         btnMarkReturning?.setOnClickListener { viewModel.markReturning() }
         btnCompleteMission?.setOnClickListener { viewModel.completeMission() }
+
     }
 
     private fun openMapsWithOwnerAddress() {
@@ -217,9 +220,12 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
                         tvMissionTimer?.text = trackingState.formattedTime
                     }
                     
-                    // Update buttons based on RTDB status
-                    activeWalk?.status?.let { rtdbStatus ->
-                        updateMissionStatusUI(rtdbStatus, viewModel.uiState.value)
+                    // Update buttons based on RTDB status, sauf si Firestore est final
+                    val firestoreStatus = viewModel.uiState.value.activeMission?.status
+                    if (firestoreStatus != null && firestoreStatus !in WalkStatus.FINAL_STATUSES) {
+                        activeWalk?.status?.let { rtdbStatus ->
+                            updateMissionStatusUI(rtdbStatus, viewModel.uiState.value)
+                        }
                     }
                 }
             }
@@ -258,29 +264,23 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
                         layoutWaiting?.visibility = View.GONE
                         layoutOffline?.visibility = View.GONE
 
-                        // Setup walk tracking for map
                         walkTrackingViewModel.setRequestId(mission.id)
 
-                        // Use RTDB status if available, otherwise use Firestore status
                         val rtdbStatus = walkTrackingViewModel.uiState.value.activeWalk?.status
                         val effectiveStatus = rtdbStatus ?: mission.status
-                        
-                        // Update mission status UI
                         updateMissionStatusUI(effectiveStatus, state)
 
-                        // Update owner info from mission data
                         val ownerName = mission.owner.let { owner ->
                             val fullName = "${owner.firstName} ${owner.lastName}".trim()
                             fullName.ifEmpty { owner.name.ifEmpty { "Propriétaire" } }
                         }
                         tvOwnerName?.text = ownerName
-                        
+
                         val initial = mission.owner.firstName.firstOrNull()
                             ?: mission.owner.name.firstOrNull()
                             ?: 'P'
                         tvOwnerInitial?.text = initial.uppercase().toString()
-                        
-                        // Use pet names from owner info
+
                         val petNames = mission.owner.pets.map { it.name }
                         val petNamesText = petNames.takeIf { it.isNotEmpty() }?.joinToString(", ")
                             ?: "${mission.owner.pets.size} chien${if (mission.owner.pets.size > 1) "s" else ""}"
@@ -288,7 +288,6 @@ class MissionsFragment : Fragment(R.layout.fragment_missions) {
                     } ?: run {
                         layoutActiveMission?.visibility = View.GONE
 
-                        // Show waiting or offline state
                         if (state.isOnline) {
                             layoutWaiting?.visibility = View.VISIBLE
                             layoutOffline?.visibility = View.GONE

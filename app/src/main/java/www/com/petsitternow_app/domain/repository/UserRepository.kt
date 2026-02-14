@@ -15,5 +15,17 @@ interface UserRepository {
         city: String,
         codePostal: String
     ): Flow<Result<Unit>>
+
+    fun updateProfileData(
+        userId: String,
+        firstName: String,
+        lastName: String,
+        phone: String,
+        gender: String,
+        dateOfBirth: String,
+        address: String,
+        city: String,
+        codePostal: String
+    ): Flow<Result<Unit>>
 }
 

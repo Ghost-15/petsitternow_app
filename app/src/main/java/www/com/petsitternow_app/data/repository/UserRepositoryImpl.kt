@@ -49,5 +49,40 @@ class UserRepositoryImpl @Inject constructor(
             emit(Result.failure(e))
         }
     }
+
+    override fun updateProfileData(
+        userId: String,
+        firstName: String,
+        lastName: String,
+        phone: String,
+        gender: String,
+        dateOfBirth: String,
+        address: String,
+        city: String,
+        codePostal: String
+    ): Flow<Result<Unit>> = flow {
+        try {
+            val data = mapOf(
+                "firstName" to firstName,
+                "lastName" to lastName,
+                "phone" to phone,
+                "gender" to gender,
+                "dateOfBirth" to dateOfBirth,
+                "address" to address,
+                "city" to city,
+                "codePostal" to codePostal,
+                "updatedAt" to System.currentTimeMillis()
+            )
+
+            firestore.collection("users")
+                .document(userId)
+                .update(data)
+                .await()
+
+            emit(Result.success(Unit))
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }
 }
 

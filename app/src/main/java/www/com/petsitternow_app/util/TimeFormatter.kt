@@ -38,18 +38,19 @@ object TimeFormatter {
      * Format a duration in seconds.
      *
      * @param totalSeconds Duration in seconds
-     * @return Formatted string like "1:23:45", "5:30", or "0:05"
+     * @return Formatted string like "1h 0m 0s", "5m 30s", or "30s"
      */
     fun formatDurationSeconds(totalSeconds: Int): String {
-        if (totalSeconds < 0) return "0:00"
+        if (totalSeconds < 0) return ""
 
         val hours = totalSeconds / 3600
         val minutes = (totalSeconds % 3600) / 60
         val seconds = totalSeconds % 60
 
         return when {
-            hours > 0 -> String.format("%d:%02d:%02d", hours, minutes, seconds)
-            else -> String.format("%d:%02d", minutes, seconds)
+            hours > 0 -> "${hours}h ${minutes}m ${seconds}s"
+            minutes > 0 -> "${minutes}m ${seconds}s"
+            else -> "${seconds}s"
         }
     }
 

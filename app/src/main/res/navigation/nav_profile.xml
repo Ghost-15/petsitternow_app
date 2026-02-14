@@ -7,7 +7,36 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="www.com.petsitternow_app.view.fragment.ProfileFragment"
-        android:label="Profil" />
+        android:label="Profil">
+
+        <action
+            android:id="@+id/action_profileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+
+        <action
+            android:id="@+id/action_profileFragment_to_changePasswordFragment"
+            app:destination="@id/changePasswordFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="www.com.petsitternow_app.view.fragment.EditProfileFragment"
+        android:label="Modifier le profil" />
+
+    <fragment
+        android:id="@+id/changePasswordFragment"
+        android:name="www.com.petsitternow_app.view.fragment.ChangePasswordFragment"
+        android:label="Changer le mot de passe" />
+
 </navigation>
 
 

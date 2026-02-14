@@ -226,6 +226,14 @@ class FakePetsitterRepository : PetsitterRepository {
         emit(Result.success(Unit))
     }
 
+    override fun updateLocationForActiveWalk(requestId: String, lat: Double, lng: Double): Flow<Result<Unit>> = flow {
+        if (shouldFail) {
+            emit(Result.failure(Exception(failureMessage)))
+            return@flow
+        }
+        emit(Result.success(Unit))
+    }
+
     fun isCurrentlyOnline(): Boolean = isOnline
 
     fun getCurrentLocation(): WalkLocation? = currentLocation

@@ -1,10 +1,44 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Petsitternow_app" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <item name="colorPrimary">@color/primary</item>
+        <!-- Primary -->
+        <item name="colorPrimary">@color/pastel_button</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/dark_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/pastel_primary</item>
+
+        <!-- Secondary -->
+        <item name="colorSecondary">@color/pastel_button</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/dark_primary_container</item>
+        <item name="colorOnSecondaryContainer">@color/pastel_primary</item>
+
+        <!-- Tertiary -->
+        <item name="colorTertiary">@color/pastel_button</item>
+        <item name="colorOnTertiary">@color/white</item>
+        <item name="colorTertiaryContainer">@color/dark_primary_container</item>
+        <item name="colorOnTertiaryContainer">@color/pastel_primary</item>
+
+        <!-- Surface & Background -->
+        <item name="colorSurface">@color/dark_surface</item>
+        <item name="colorOnSurface">@color/dark_text_primary</item>
+        <item name="colorSurfaceVariant">@color/dark_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/dark_text_secondary</item>
+        <item name="android:colorBackground">@color/dark_background</item>
+        <item name="colorOnBackground">@color/dark_text_primary</item>
+
+        <!-- Outline (bordures des TextInputLayout, etc.) -->
+        <item name="colorOutline">@color/dark_border</item>
+        <item name="colorOutlineVariant">@color/dark_border</item>
+
+        <!-- Error -->
+        <item name="colorError">#F87171</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="colorErrorContainer">#7F1D1D</item>
+        <item name="colorOnErrorContainer">#FCA5A5</item>
+
         <!-- Status bar styling -->
-        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:statusBarColor">@color/dark_background</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

@@ -286,6 +286,34 @@
                 app:cornerRadius="12dp"
                 android:visibility="gone" />
 
+            <!-- Rate Owner button (COMPLETED status) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRateOwner"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:text="Noter le proprietaire"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                app:icon="@drawable/ic_star"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:cornerRadius="12dp"
+                android:visibility="gone" />
+
+            <!-- Dismiss button (COMPLETED status) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDismissMission"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:text="Fermer"
+                android:textSize="14sp"
+                android:textAllCaps="false"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:cornerRadius="12dp"
+                android:visibility="gone" />
+
         </LinearLayout>
 
     </LinearLayout>

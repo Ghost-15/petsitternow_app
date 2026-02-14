@@ -3,7 +3,9 @@ package www.com.petsitternow_app.data.repository
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import www.com.petsitternow_app.data.datasource.WalkFirestoreDataSource
@@ -267,5 +269,28 @@ class WalkRepositoryImpl @Inject constructor(
         }
         val commentTrimmed = comment?.take(500)?.trim()
         emit(firestoreDataSource.submitOwnerRating(requestId, score, commentTrimmed.let { if (it.isNullOrEmpty()) null else it }))
+    }
+
+    override fun observeWalkRequest(requestId: String): Flow<WalkRequest?> = callbackFlow {
+        val listener = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+            .collection("walk_requests")
+            .document(requestId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    trySend(null)
+                    return@addSnapshotListener
+                }
+                if (snapshot == null || !snapshot.exists()) {
+                    trySend(null)
+                } else {
+                    val data = snapshot.data
+                    if (data != null) {
+                        trySend(WalkRequest.fromMap(snapshot.id, data))
+                    } else {
+                        trySend(null)
+                    }
+                }
+            }
+        awaitClose { listener.remove() }
     }
 }

@@ -120,20 +120,14 @@ class PetsitterMissionsViewModel @Inject constructor(
             petsitterRepository.observeActiveMission(userId)
                 .catch { /* Ignore */ }
                 .collectLatest { mission ->
-                    android.util.Log.d("PetsitterVM", "observeActiveMission: mission=${mission?.id}, status=${mission?.status}")
-                    _uiState.value = _uiState.value.copy(
-                        activeMission = mission
-                    )
+                    _uiState.value = _uiState.value.copy(activeMission = mission)
 
-                    // Observe ActiveWalk data for timer when we have an active mission
                     if (mission != null) {
                         observeActiveWalkData(mission.id)
-                        // Start location updates for distance calculation during mission
                         startLocationUpdates()
                     } else {
                         stopActiveWalkObservation()
                         stopWalkTimer()
-                        // Stop location updates if not online and no mission
                         if (!_uiState.value.isOnline) {
                             stopLocationUpdates()
                         }
