@@ -151,6 +151,10 @@ class FakeWalkRepository : WalkRepository {
         emit(Result.success(Unit))
     }
 
+    override fun observeWalkRequest(requestId: String): Flow<WalkRequest?> = flow {
+        emit(walkRequests[requestId])
+    }
+
     private fun getActiveWalkFlow(requestId: String): MutableStateFlow<ActiveWalk?> {
         return activeWalkFlows.getOrPut(requestId) {
             MutableStateFlow(activeWalks[requestId])
