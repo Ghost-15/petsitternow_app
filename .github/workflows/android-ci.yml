@@ -58,6 +58,10 @@ jobs:
       - name: Run lint
         run: ./gradlew lintDebug --no-daemon
 
+      # --- Detekt ---
+      - name: Run Detekt
+        run: ./gradlew detekt --no-daemon
+
       # --- Artifacts ---
       - name: Upload debug APK
         if: success()
@@ -81,4 +85,12 @@ jobs:
         with:
           name: lint-report
           path: app/build/reports/lint-results-debug.html
+          retention-days: 7
+
+      - name: Upload Detekt report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: detekt-report
+          path: build/reports/detekt/
           retention-days: 7

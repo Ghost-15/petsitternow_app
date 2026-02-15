@@ -3,6 +3,7 @@ package www.com.petsitternow_app
 import android.app.Application
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -21,10 +22,29 @@ class PetSitterNowApp : Application() {
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     override fun onCreate() {
-        // Forcer le thème de l'app (désactive les couleurs dynamiques Material 3)
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         super.onCreate()
+        initCrashlytics()
         requestFcmTokenAndSave()
+    }
+
+    /**
+     * Initialise Firebase Crashlytics avec les clés personnalisées
+     * pour faciliter le diagnostic des crashs en production.
+     */
+    private fun initCrashlytics() {
+        val crashlytics = FirebaseCrashlytics.getInstance()
+        crashlytics.setCrashlyticsCollectionEnabled(true)
+        crashlytics.setCustomKey("app_version", BuildConfig.VERSION_NAME)
+        crashlytics.setCustomKey("build_type", BuildConfig.BUILD_TYPE)
+        crashlytics.log("Crashlytics initialized")
+        Log.d(TAG, "Firebase Crashlytics initialized")
+
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            crashlytics.setCustomKey("crash_thread", thread.name)
+            crashlytics.recordException(throwable)
+            Log.e(TAG, "Uncaught exception on thread ${thread.name}", throwable)
+        }
     }
 
     private fun requestFcmTokenAndSave() {
@@ -32,13 +52,19 @@ class PetSitterNowApp : Application() {
             .addOnCompleteListener { task ->
                 if (!task.isSuccessful) {
                     Log.w(TAG, "FCM token fetch failed", task.exception)
+                    FirebaseCrashlytics.getInstance().recordException(
+                        task.exception ?: Exception("FCM token fetch failed")
+                    )
                     return@addOnCompleteListener
                 }
                 val token = task.result ?: return@addOnCompleteListener
                 Log.d(TAG, "FCM token obtained, saving to Firestore")
                 appScope.launch(Dispatchers.IO) {
                     notificationRepository.saveFcmToken(token).collect { result ->
-                        result.onFailure { e -> Log.e(TAG, "Failed to save FCM token", e) }
+                        result.onFailure { e ->
+                            Log.e(TAG, "Failed to save FCM token", e)
+                            FirebaseCrashlytics.getInstance().recordException(e)
+                        }
                     }
                 }
             }
