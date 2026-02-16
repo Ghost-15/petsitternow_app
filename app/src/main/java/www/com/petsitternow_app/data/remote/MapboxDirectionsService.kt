@@ -2,7 +2,6 @@ package www.com.petsitternow_app.data.remote
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
 import org.json.JSONObject
 import www.com.petsitternow_app.domain.model.RouteInfo
 import www.com.petsitternow_app.domain.model.WalkLocation

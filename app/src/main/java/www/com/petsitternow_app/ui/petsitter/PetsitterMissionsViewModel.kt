@@ -13,12 +13,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import www.com.petsitternow_app.domain.model.ActiveWalk
 import www.com.petsitternow_app.domain.model.PetsitterMission
-import www.com.petsitternow_app.domain.model.PetsitterProfile
 import www.com.petsitternow_app.domain.model.WalkLocation
 import www.com.petsitternow_app.domain.model.WalkRequest
-import www.com.petsitternow_app.domain.model.WalkStatus
 import www.com.petsitternow_app.domain.repository.PetsitterRepository
 import www.com.petsitternow_app.domain.repository.WalkRepository
 import www.com.petsitternow_app.util.LocationProvider
@@ -474,7 +471,7 @@ class PetsitterMissionsViewModel @Inject constructor(
                 petsitterRepository.updateLocation(location.lat, location.lng)
                     .catch { /* Ignore */ }
                     .collectLatest { /* Updated */ }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
                 // Ignore location errors on initial update
             }
         }

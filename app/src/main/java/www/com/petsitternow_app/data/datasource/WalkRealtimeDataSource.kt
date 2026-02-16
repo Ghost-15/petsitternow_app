@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import www.com.petsitternow_app.domain.model.ActiveWalk
-import www.com.petsitternow_app.domain.model.PetsitterAvailability
 import www.com.petsitternow_app.domain.model.PetsitterMission
 import www.com.petsitternow_app.domain.model.WalkStatus
 import javax.inject.Inject

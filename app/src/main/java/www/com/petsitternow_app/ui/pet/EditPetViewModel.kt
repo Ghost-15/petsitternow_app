@@ -136,7 +136,7 @@ class EditPetViewModel @Inject constructor(
             today.set(Calendar.MINUTE, 59)
             today.set(Calendar.SECOND, 59)
             date != null && date <= today.time
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
             false
         }
     }

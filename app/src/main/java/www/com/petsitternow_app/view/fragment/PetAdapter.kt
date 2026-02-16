@@ -88,7 +88,7 @@ class PetAdapter(
                     age--
                 }
                 if (age < 0) null else age
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
                 null
             }
         }

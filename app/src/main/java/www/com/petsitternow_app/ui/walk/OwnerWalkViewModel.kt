@@ -1,11 +1,9 @@
 package www.com.petsitternow_app.ui.walk
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -49,11 +47,8 @@ class OwnerWalkViewModel @Inject constructor(
     private val walkRepository: WalkRepository,
     private val petRepository: PetRepository,
     private val locationProvider: LocationProvider,
-    private val auth: FirebaseAuth,
-    @ApplicationContext private val appContext: Context
+    private val auth: FirebaseAuth
 ) : ViewModel() {
-
-    private val prefs = appContext.getSharedPreferences("owner_prefs", Context.MODE_PRIVATE)
 
     private val _uiState = MutableStateFlow(OwnerWalkUiState())
     val uiState: StateFlow<OwnerWalkUiState> = _uiState.asStateFlow()
@@ -134,7 +129,7 @@ class OwnerWalkViewModel @Inject constructor(
         }
     }
 
-    private fun checkIfCompleted(walkId: String, previousWalk: WalkRequest) {
+    private fun checkIfCompleted(walkId: String, @Suppress("unused") unusedPreviousWalk: WalkRequest) {
         viewModelScope.launch {
             try {
                 walkRepository.observeWalkRequest(walkId)
