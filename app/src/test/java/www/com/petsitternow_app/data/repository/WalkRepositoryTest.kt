@@ -185,14 +185,20 @@ class WalkRepositoryTest {
         val walks = listOf(
             WalkRequest(
                 id = "walk1",
-                owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
+                owner = OwnerInfo(
+                    id = "owner1", firstName = "Test", lastName = "Owner",
+                    name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))
+                ),
                 location = WalkLocation(lat = 48.8566, lng = 2.3522),
                 duration = "30",
                 status = WalkStatus.COMPLETED
             ),
             WalkRequest(
                 id = "walk2",
-                owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet2", name = "Buddy"))),
+                owner = OwnerInfo(
+                    id = "owner1", firstName = "Test", lastName = "Owner",
+                    name = "Test Owner", pets = listOf(PetInfo(id = "pet2", name = "Buddy"))
+                ),
                 location = WalkLocation(lat = 48.8566, lng = 2.3522),
                 duration = "45",
                 status = WalkStatus.CANCELLED

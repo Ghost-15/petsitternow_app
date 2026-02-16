@@ -208,7 +208,7 @@ class RequestWalkBottomSheetDialogFragment : BottomSheetDialogFragment() {
                     tvLocation?.text = "Position non disponible. Cliquez pour réessayer"
                     layoutLocation?.isClickable = true
                 }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
                 progressLocation?.visibility = View.GONE
                 tvLocation?.text = "Erreur de localisation. Cliquez pour réessayer"
                 currentLocation = null
@@ -235,7 +235,7 @@ class RequestWalkBottomSheetDialogFragment : BottomSheetDialogFragment() {
         const val TAG = "RequestWalkBottomSheet"
 
         fun newInstance(
-            pets: List<www.com.petsitternow_app.domain.repository.Pet> = emptyList(),
+            @Suppress("unused") unusedPets: List<www.com.petsitternow_app.domain.repository.Pet> = emptyList(),
             location: WalkLocation? = null
         ): RequestWalkBottomSheetDialogFragment {
             return RequestWalkBottomSheetDialogFragment().apply {

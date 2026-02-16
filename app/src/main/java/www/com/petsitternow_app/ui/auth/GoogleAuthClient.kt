@@ -30,8 +30,7 @@ class GoogleAuthClient(
             }
 
         } catch (e: Exception) {
-            e.printStackTrace()
-            Log.e("Auth", "Google Sign-In failed with exception: ${e.message}")
+            Log.e("Auth", "Google Sign-In failed with exception: ${e.message}", e)
             throw e
         }
     }

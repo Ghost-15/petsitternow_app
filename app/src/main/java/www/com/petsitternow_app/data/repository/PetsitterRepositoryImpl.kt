@@ -142,7 +142,7 @@ class PetsitterRepositoryImpl @Inject constructor(
                         expiresAt = Long.MAX_VALUE // Never expires client-side
                     )
                     
-                    Log.d("PetsitterRepo", "observePendingMission: Sending mission ${mission.requestId} with petNames=${mission.petNames}, ownerName=${mission.ownerName}")
+                    Log.d("PetsitterRepo", "observePendingMission: Sending mission ${mission.requestId}")
                     trySend(mission)
                 }
             }

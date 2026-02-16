@@ -13,12 +13,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import www.com.petsitternow_app.domain.model.ActiveWalk
 import www.com.petsitternow_app.domain.model.PetsitterMission
-import www.com.petsitternow_app.domain.model.PetsitterProfile
 import www.com.petsitternow_app.domain.model.WalkLocation
 import www.com.petsitternow_app.domain.model.WalkRequest
-import www.com.petsitternow_app.domain.model.WalkStatus
 import www.com.petsitternow_app.domain.repository.PetsitterRepository
 import www.com.petsitternow_app.domain.repository.WalkRepository
 import www.com.petsitternow_app.util.LocationProvider
@@ -399,7 +396,10 @@ class PetsitterMissionsViewModel @Inject constructor(
                                 ownerLocation.lat, ownerLocation.lng
                             )
                         val isWithinRange = distance <= www.com.petsitternow_app.util.DistanceCalculator.COMPLETION_DISTANCE_THRESHOLD_METERS
-                        android.util.Log.d("PetsitterVM", "Distance to owner: ${distance.toInt()}m, isWithinRange: $isWithinRange, petsitter: (${location.lat}, ${location.lng}), owner: (${ownerLocation.lat}, ${ownerLocation.lng})")
+                        android.util.Log.d(
+                            "PetsitterVM",
+                            "Distance to owner: ${distance.toInt()}m, isWithinRange: $isWithinRange"
+                        )
                         _uiState.value = _uiState.value.copy(
                             distanceToOwner = distance,
                             isWithinCompletionRange = isWithinRange
@@ -474,7 +474,7 @@ class PetsitterMissionsViewModel @Inject constructor(
                 petsitterRepository.updateLocation(location.lat, location.lng)
                     .catch { /* Ignore */ }
                     .collectLatest { /* Updated */ }
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
                 // Ignore location errors on initial update
             }
         }

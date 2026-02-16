@@ -27,7 +27,6 @@ class WalkFirestoreDataSource @Inject constructor(
     companion object {
         private const val COLLECTION_WALK_REQUESTS = "walk_requests"
         private const val COLLECTION_RESPONSES = "responses"
-        private const val COLLECTION_PETS = "pets"
         private const val FIELD_OWNER_ID = "owner.id"
         private const val FIELD_STATUS = "status"
         private const val FIELD_PETSITTER_ID = "petsitter.id"

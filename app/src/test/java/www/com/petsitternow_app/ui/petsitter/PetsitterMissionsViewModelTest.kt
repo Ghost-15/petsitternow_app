@@ -16,7 +16,6 @@ import www.com.petsitternow_app.domain.model.OwnerInfo
 import www.com.petsitternow_app.domain.model.PetInfo
 import www.com.petsitternow_app.domain.model.PetsitterInfo
 import www.com.petsitternow_app.domain.model.PetsitterMission
-import www.com.petsitternow_app.domain.model.PetsitterProfile
 import www.com.petsitternow_app.domain.model.WalkLocation
 import www.com.petsitternow_app.domain.model.WalkRequest
 import www.com.petsitternow_app.domain.model.WalkStatus

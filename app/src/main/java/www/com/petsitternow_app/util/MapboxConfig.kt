@@ -16,6 +16,7 @@ object MapboxConfig {
      * 2. Read via BuildConfig or resources
      * 3. Or use the same token as the web app (NEXT_PUBLIC_MAPBOX_TOKEN)
      */
+    @Suppress("UNUSED_PARAMETER")
     fun getAccessToken(context: Context): String {
         return BuildConfig.MAPBOX_ACCESS_TOKEN
     }

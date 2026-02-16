@@ -50,7 +50,7 @@ class AuthRepositoryImpl @Inject constructor(
             val tokenResult = user.getIdToken(false).await()
             val claims = tokenResult.claims
             claims["onboardingCompleted"] as? Boolean ?: false
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
             false
         }
     }

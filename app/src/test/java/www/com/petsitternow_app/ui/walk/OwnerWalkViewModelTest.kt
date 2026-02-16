@@ -192,7 +192,10 @@ class OwnerWalkViewModelTest {
             ),
             WalkRequest(
                 id = "w2",
-                owner = OwnerInfo(id = "owner", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet2", name = "Buddy"))),
+                owner = OwnerInfo(
+                    id = "owner", firstName = "Test", lastName = "Owner",
+                    name = "Test Owner", pets = listOf(PetInfo(id = "pet2", name = "Buddy"))
+                ),
                 location = WalkLocation(lat = 48.8566, lng = 2.3522),
                 duration = "45",
                 status = WalkStatus.CANCELLED

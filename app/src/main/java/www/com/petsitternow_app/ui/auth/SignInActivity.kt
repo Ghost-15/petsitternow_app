@@ -59,7 +59,7 @@ class SignInActivity : AppCompatActivity() {
                 try {
                     val idToken = googleAuthClient.signIn()
                     idToken?.let { viewModel.signInGoogle(it) }
-                } catch (e: NoCredentialException) {
+                } catch (ignored: NoCredentialException) {
                     Toast.makeText(this@SignInActivity, "Aucun compte Google trouvé. Veuillez en ajouter un.", Toast.LENGTH_LONG).show()
                     val intent = Intent(Settings.ACTION_ADD_ACCOUNT).apply {
                         putExtra(Settings.EXTRA_ACCOUNT_TYPES, arrayOf("com.google"))

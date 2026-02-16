@@ -29,7 +29,7 @@ class FeatureFlagRepositoryImpl @Inject constructor(
     override suspend fun isOwnerPathEnabled(): Boolean {
         return try {
             remoteConfig.getValue(KEY_OWNER_PATH).asBoolean()
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
             true
         }
     }
@@ -37,7 +37,7 @@ class FeatureFlagRepositoryImpl @Inject constructor(
     override suspend fun isPetsitterPathEnabled(): Boolean {
         return try {
             remoteConfig.getValue(KEY_PETSITTER_PATH).asBoolean()
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
             true
         }
     }
@@ -45,7 +45,7 @@ class FeatureFlagRepositoryImpl @Inject constructor(
     override suspend fun fetchAndActivate() {
         try {
             remoteConfig.fetchAndActivate().await()
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
             // Use cached/default values on failure
         }
     }

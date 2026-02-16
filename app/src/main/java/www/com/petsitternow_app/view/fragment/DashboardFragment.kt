@@ -216,6 +216,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         observePetsitterState(view)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun observePetsitterState(contentView: View) {
         // Observe walk tracking for map
         viewLifecycleOwner.lifecycleScope.launch {
@@ -411,6 +412,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         tvAddress?.text = mission?.location?.address ?: ""
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun updatePendingMissionCard(mission: PetsitterMission, countdown: Int) {
         val container = view?.findViewById<FrameLayout>(R.id.container) ?: return
         val contentView = container.getChildAt(0) ?: return
@@ -475,6 +477,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         }
     }
 
+    @Suppress("LongMethod")
     private fun setupOwnerView(view: View) {
         view.findViewById<MaterialButton>(R.id.btnAddPet)?.setOnClickListener {
             findNavController().navigate(R.id.action_dashboard_to_addPet)
@@ -532,7 +535,8 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.RATING_REQUEST_KEY,
             viewLifecycleOwner
         ) { _, bundle ->
-            val requestId = bundle.getString(www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.KEY_REQUEST_ID) ?: return@setFragmentResultListener
+            val ratingDialog = www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment
+            val requestId = bundle.getString(ratingDialog.KEY_REQUEST_ID) ?: return@setFragmentResultListener
             val score = bundle.getInt(www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.KEY_SCORE)
             val comment = bundle.getString(www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.KEY_COMMENT)
             walkViewModel.submitPetsitterRating(requestId, score, comment)
