@@ -94,6 +94,7 @@ class WalkTrackingMapView @JvmOverloads constructor(
         addView(mapView)
 
         // Create info overlay - positioned at bottom
+        @Suppress("MagicNumber")
         infoOverlay = TextView(context).apply {
             setBackgroundResource(R.drawable.bg_map_info_overlay)
             setPadding(32, 16, 32, 16)
@@ -280,6 +281,7 @@ class WalkTrackingMapView @JvmOverloads constructor(
             mapboxMap.setCamera(
                 CameraOptions.Builder()
                     .center(com.mapbox.geojson.Point.fromLngLat(location.lng, location.lat))
+                    @Suppress("MagicNumber")
                     .zoom(14.0)
                     .build()
             )

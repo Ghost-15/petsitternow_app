@@ -535,7 +535,8 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.RATING_REQUEST_KEY,
             viewLifecycleOwner
         ) { _, bundle ->
-            val requestId = bundle.getString(www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.KEY_REQUEST_ID) ?: return@setFragmentResultListener
+            val ratingDialog = www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment
+            val requestId = bundle.getString(ratingDialog.KEY_REQUEST_ID) ?: return@setFragmentResultListener
             val score = bundle.getInt(www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.KEY_SCORE)
             val comment = bundle.getString(www.com.petsitternow_app.view.fragment.RatingBottomSheetDialogFragment.KEY_COMMENT)
             walkViewModel.submitPetsitterRating(requestId, score, comment)

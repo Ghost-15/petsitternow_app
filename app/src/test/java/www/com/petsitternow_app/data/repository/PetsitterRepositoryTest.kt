@@ -379,7 +379,10 @@ class PetsitterRepositoryTest {
         val missions = listOf(
             WalkRequest(
                 id = "m1",
-                owner = OwnerInfo(id = "owner1", firstName = "Test", lastName = "Owner", name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))),
+                owner = OwnerInfo(
+                    id = "owner1", firstName = "Test", lastName = "Owner",
+                    name = "Test Owner", pets = listOf(PetInfo(id = "pet1", name = "Rex"))
+                ),
                 location = WalkLocation(lat = 48.8566, lng = 2.3522),
                 duration = "30",
                 status = WalkStatus.COMPLETED,
@@ -387,7 +390,10 @@ class PetsitterRepositoryTest {
             ),
             WalkRequest(
                 id = "m2",
-                owner = OwnerInfo(id = "owner2", firstName = "Test2", lastName = "Owner2", name = "Test2 Owner2", pets = listOf(PetInfo(id = "pet2", name = "Buddy"))),
+                owner = OwnerInfo(
+                    id = "owner2", firstName = "Test2", lastName = "Owner2",
+                    name = "Test2 Owner2", pets = listOf(PetInfo(id = "pet2", name = "Buddy"))
+                ),
                 location = WalkLocation(lat = 48.8566, lng = 2.3522),
                 duration = "45",
                 status = WalkStatus.COMPLETED,

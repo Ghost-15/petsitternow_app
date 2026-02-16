@@ -396,7 +396,10 @@ class PetsitterMissionsViewModel @Inject constructor(
                                 ownerLocation.lat, ownerLocation.lng
                             )
                         val isWithinRange = distance <= www.com.petsitternow_app.util.DistanceCalculator.COMPLETION_DISTANCE_THRESHOLD_METERS
-                        android.util.Log.d("PetsitterVM", "Distance to owner: ${distance.toInt()}m, isWithinRange: $isWithinRange, petsitter: (${location.lat}, ${location.lng}), owner: (${ownerLocation.lat}, ${ownerLocation.lng})")
+                        android.util.Log.d(
+                            "PetsitterVM",
+                            "Distance to owner: ${distance.toInt()}m, isWithinRange: $isWithinRange"
+                        )
                         _uiState.value = _uiState.value.copy(
                             distanceToOwner = distance,
                             isWithinCompletionRange = isWithinRange

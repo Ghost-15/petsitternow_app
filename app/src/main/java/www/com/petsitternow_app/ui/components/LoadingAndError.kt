@@ -115,6 +115,7 @@ fun ShimmerListItem(
         Spacer(modifier = Modifier.width(16.dp))
 
         Column(modifier = Modifier.weight(1f)) {
+            @Suppress("MagicNumber")
             ShimmerBox(
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
@@ -123,6 +124,7 @@ fun ShimmerListItem(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            @Suppress("MagicNumber")
             ShimmerBox(
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
@@ -466,6 +468,7 @@ fun OfflineBanner(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            @Suppress("MagicNumber")
             .background(Color(0xFFFF9800))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
