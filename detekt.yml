@@ -13,8 +13,6 @@ complexity:
   CyclomaticComplexMethod:
     active: true
     threshold: 35
-    includeStaticDeclarations: false
-    includePrivateDeclarations: false
   LargeClass:
     active: true
     threshold: 800
