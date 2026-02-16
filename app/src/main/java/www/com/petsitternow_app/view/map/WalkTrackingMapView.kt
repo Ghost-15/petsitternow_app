@@ -278,10 +278,10 @@ class WalkTrackingMapView @JvmOverloads constructor(
         if (locations.size == 1) {
             // Single location: center on it
             val location = locations[0]
+            @Suppress("MagicNumber")
             mapboxMap.setCamera(
                 CameraOptions.Builder()
                     .center(com.mapbox.geojson.Point.fromLngLat(location.lng, location.lat))
-                    @Suppress("MagicNumber")
                     .zoom(14.0)
                     .build()
             )

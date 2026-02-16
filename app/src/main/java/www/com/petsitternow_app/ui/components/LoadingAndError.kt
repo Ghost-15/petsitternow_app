@@ -461,6 +461,7 @@ fun InlineError(
 /**
  * Offline banner.
  */
+@Suppress("MagicNumber")
 @Composable
 fun OfflineBanner(
     modifier: Modifier = Modifier
@@ -468,7 +469,6 @@ fun OfflineBanner(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            @Suppress("MagicNumber")
             .background(Color(0xFFFF9800))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
