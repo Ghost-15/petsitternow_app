@@ -2,7 +2,9 @@ package www.com.petsitternow_app.view.fragment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -73,13 +75,11 @@ class ProfileViewModel @Inject constructor(
             }
 
             try {
-                // 1. Récupérer les données Firestore
                 val doc = firestore.collection("users")
                     .document(user.uid)
                     .get()
                     .await()
 
-                // 2. Récupérer les Custom Claims
                 val tokenResult = user.getIdToken(true).await()
                 val claims = tokenResult.claims
 
@@ -90,10 +90,8 @@ class ProfileViewModel @Inject constructor(
                     else -> null
                 }
 
-                // 3. Détecter si l'utilisateur utilise le provider password
                 val isPasswordUser = user.providerData.any { it.providerId == "password" }
 
-                // 4. Mettre à jour l'état
                 _state.value = ProfileState(
                     email = user.email ?: "-",
                     isPasswordUser = isPasswordUser,
@@ -122,10 +120,50 @@ class ProfileViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
-            // Supprimer le token FCM AVANT de se déconnecter
             notificationRepository.clearFcmToken().collect { }
             auth.signOut()
             _logoutEvent.emit(Unit)
+        }
+    }
+
+    fun deleteAccount() {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null)
+            val user = auth.currentUser
+            if (user == null) {
+                _state.value = _state.value.copy(error = "Non connecte", isLoading = false)
+                return@launch
+            }
+            try {
+                val uid = user.uid
+                val db = firestore
+                val rtdb = FirebaseDatabase.getInstance()
+
+                val petsSnapshot = db.collection("pets")
+                    .whereEqualTo("ownerId", uid).get().await()
+                for (doc in petsSnapshot.documents) {
+                    doc.reference.delete().await()
+                }
+
+                db.collection("users").document(uid).delete().await()
+                try { db.collection("petsitters_profiles").document(uid).delete().await() } catch (ignored: Exception) { }
+                try { db.collection("rating_users").document(uid).delete().await() } catch (ignored: Exception) { }
+
+                try { rtdb.reference.child("petsitters_available").child(uid).removeValue().await() } catch (ignored: Exception) { }
+
+                notificationRepository.clearFcmToken().collect { }
+
+                user.delete().await()
+
+                Log.d("ProfileVM", "Account deleted for $uid")
+                _logoutEvent.emit(Unit)
+            } catch (e: Exception) {
+                Log.e("ProfileVM", "Error deleting account", e)
+                _state.value = _state.value.copy(
+                    error = "Erreur lors de la suppression: ${e.message}",
+                    isLoading = false
+                )
+            }
         }
     }
 }

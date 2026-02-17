@@ -130,7 +130,17 @@
                         android:background="@drawable/bg_input_field_focused"
                         android:textSize="15sp"
                         android:textColor="@color/text_primary"
-                        android:layout_marginBottom="24dp" />
+                        android:layout_marginBottom="16dp" />
+
+                    <CheckBox
+                        android:id="@+id/cbPrivacy"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_secondary"
+                        android:text="J'accepte la politique de confidentialité"
+                        android:buttonTint="@color/primary" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSignUp"

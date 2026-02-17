@@ -1,11 +1,13 @@
 package www.com.petsitternow_app.ui.pet
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import www.com.petsitternow_app.domain.repository.AddPetData
 import www.com.petsitternow_app.domain.repository.PetRepository
+import www.com.petsitternow_app.util.ImageCompressor
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -38,7 +41,8 @@ sealed class AddPetNavigation {
 class AddPetViewModel @Inject constructor(
     private val petRepository: PetRepository,
     private val auth: FirebaseAuth,
-    private val storage: FirebaseStorage
+    private val storage: FirebaseStorage,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AddPetState())
@@ -118,10 +122,11 @@ class AddPetViewModel @Inject constructor(
                 val photoUrls = mutableListOf<String>()
                 
                 s.photoUris.forEachIndexed { index, uri ->
+                    val compressedBytes = ImageCompressor.compress(context, uri)
                     val timestamp = System.currentTimeMillis()
                     val fileName = "pets/$userId/${timestamp}_${index}_photo.jpg"
                     val storageRef = storage.reference.child(fileName)
-                    storageRef.putFile(uri).await()
+                    storageRef.putBytes(compressedBytes).await()
                     val downloadUrl = storageRef.downloadUrl.await()
                     photoUrls.add(downloadUrl.toString())
                 }

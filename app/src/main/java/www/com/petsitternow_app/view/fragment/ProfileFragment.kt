@@ -1,6 +1,8 @@
 package www.com.petsitternow_app.view.fragment
 
 import android.content.Intent
+import android.graphics.Paint
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
@@ -12,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import www.com.petsitternow_app.R
@@ -38,6 +41,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     private lateinit var btnEditProfile: MaterialButton
     private lateinit var btnChangePassword: MaterialButton
     private lateinit var btnLogout: MaterialButton
+    private lateinit var btnDeleteAccount: MaterialButton
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -66,6 +70,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         btnEditProfile = view.findViewById(R.id.btnEditProfile)
         btnChangePassword = view.findViewById(R.id.btnChangePassword)
         btnLogout = view.findViewById(R.id.btnLogout)
+        btnDeleteAccount = view.findViewById(R.id.btnDeleteAccount)
     }
 
     private fun setupClickListeners() {
@@ -90,6 +95,29 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
         btnChangePassword.setOnClickListener {
             findNavController().navigate(R.id.action_profileFragment_to_changePasswordFragment)
+        }
+
+        val tvPrivacy = requireView().findViewById<TextView>(R.id.tvPrivacyLink)
+        tvPrivacy?.paintFlags = (tvPrivacy?.paintFlags ?: 0) or Paint.UNDERLINE_TEXT_FLAG
+        tvPrivacy?.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://petsitternow.vercel.app/privacy")))
+        }
+
+        btnDeleteAccount.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Supprimer votre compte ?")
+                .setMessage(
+                    "Cette action est irréversible. Toutes vos données seront supprimées :\n\n" +
+                    "• Informations personnelles\n" +
+                    "• Animaux enregistrés\n" +
+                    "• Compte Firebase Auth\n\n" +
+                    "Vos promenades passées seront anonymisées."
+                )
+                .setPositiveButton("Supprimer") { _, _ ->
+                    viewModel.deleteAccount()
+                }
+                .setNegativeButton("Annuler", null)
+                .show()
         }
     }
 
