@@ -1,7 +1,9 @@
 package www.com.petsitternow_app.ui.auth
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -25,6 +27,7 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var etPassword: EditText
     private lateinit var btnSignUp: MaterialButton
     private lateinit var tvAlreadyAccount: TextView
+    private lateinit var cbPrivacy: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,12 +37,22 @@ class SignUpActivity : AppCompatActivity() {
         etPassword = findViewById(R.id.etPassword)
         btnSignUp = findViewById(R.id.btnSignUp)
         tvAlreadyAccount = findViewById(R.id.tvAlreadyAccount)
+        cbPrivacy = findViewById(R.id.cbPrivacy)
+
+        cbPrivacy.setOnLongClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://petsitternow.vercel.app/privacy")))
+            true
+        }
 
         tvAlreadyAccount.setOnClickListener {
             finish()
         }
 
         btnSignUp.setOnClickListener {
+            if (!cbPrivacy.isChecked) {
+                Toast.makeText(this, "Veuillez accepter la politique de confidentialité", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
             viewModel.signUp(email, password)

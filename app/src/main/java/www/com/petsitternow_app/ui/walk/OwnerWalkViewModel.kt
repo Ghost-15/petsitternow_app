@@ -60,7 +60,7 @@ class OwnerWalkViewModel @Inject constructor(
         observeActiveWalk()
     }
 
-    private fun loadPets() {
+    fun loadPets() {
         val userId = auth.currentUser?.uid ?: return
 
         viewModelScope.launch {

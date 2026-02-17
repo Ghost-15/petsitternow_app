@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -54,8 +55,30 @@ class EditPetFragment : Fragment(R.layout.fragment_edit_pet) {
         ActivityResultContracts.GetMultipleContents()
     ) { uris ->
         if (uris.isNotEmpty()) {
-            viewModel.addNewPhotoUris(uris)
+            val (valid, rejected) = filterByFileSize(uris)
+            if (rejected.isNotEmpty()) {
+                Toast.makeText(
+                    requireContext(),
+                    "${rejected.size} image(s) ignorée(s) : taille max 5 Mo",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            if (valid.isNotEmpty()) {
+                viewModel.addNewPhotoUris(valid)
+            }
         }
+    }
+
+    @Suppress("MagicNumber")
+    private fun filterByFileSize(uris: List<android.net.Uri>): Pair<List<android.net.Uri>, List<android.net.Uri>> {
+        val maxBytes = 5L * 1024 * 1024
+        val valid = mutableListOf<android.net.Uri>()
+        val rejected = mutableListOf<android.net.Uri>()
+        for (uri in uris) {
+            val size = requireContext().contentResolver.openInputStream(uri)?.use { it.available().toLong() } ?: 0L
+            if (size <= maxBytes) valid.add(uri) else rejected.add(uri)
+        }
+        return valid to rejected
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

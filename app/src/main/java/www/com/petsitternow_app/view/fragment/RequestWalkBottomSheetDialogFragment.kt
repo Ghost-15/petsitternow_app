@@ -75,9 +75,9 @@ class RequestWalkBottomSheetDialogFragment : BottomSheetDialogFragment() {
         setupDurationRadioGroup(view)
         setupLocationButton(view)
         setupSubmitButton()
+        viewModel.loadPets()
         observeState()
         
-        // Si la localisation est déjà disponible, masquer le bouton de localisation
         if (currentLocation != null) {
             layoutLocation?.visibility = View.GONE
             updateSubmitButtonState()

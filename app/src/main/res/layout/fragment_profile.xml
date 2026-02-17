@@ -513,6 +513,41 @@
                 app:iconGravity="textStart"
                 app:iconPadding="8dp" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDeleteAccount"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:text="Supprimer mon compte"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:backgroundTint="#DC2626"
+                app:cornerRadius="12dp"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="La suppression est irréversible. Vos données seront effacées conformément au RGPD."
+                android:textSize="12sp"
+                android:textColor="@color/text_muted"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/tvPrivacyLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:text="Politique de confidentialité ↗"
+                android:textSize="13sp"
+                android:textColor="@color/primary"
+                android:textStyle="bold"
+                android:padding="8dp" />
+
         </LinearLayout>
 
     </LinearLayout>
