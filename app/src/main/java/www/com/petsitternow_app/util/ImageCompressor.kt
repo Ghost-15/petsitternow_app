@@ -17,9 +17,11 @@ object ImageCompressor {
      * @param uri The image URI to compress
      * @return Compressed image as ByteArray
      */
+    @Suppress("ThrowsCount")
     fun compress(context: Context, uri: Uri): ByteArray {
-        val inputStream = context.contentResolver.openInputStream(uri)
-            ?: throw IllegalArgumentException("Cannot open image URI")
+        val inputStream = requireNotNull(context.contentResolver.openInputStream(uri)) {
+            "Cannot open image URI"
+        }
 
         val options = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
@@ -41,10 +43,12 @@ object ImageCompressor {
             inSampleSize = sampleSize
         }
 
-        val secondStream = context.contentResolver.openInputStream(uri)
-            ?: throw IllegalArgumentException("Cannot reopen image URI")
-        val bitmap = BitmapFactory.decodeStream(secondStream, null, decodeOptions)
-            ?: throw IllegalArgumentException("Cannot decode image")
+        val secondStream = requireNotNull(context.contentResolver.openInputStream(uri)) {
+            "Cannot reopen image URI"
+        }
+        val bitmap = requireNotNull(BitmapFactory.decodeStream(secondStream, null, decodeOptions)) {
+            "Cannot decode image"
+        }
         secondStream.close()
 
         val scaledBitmap = scaleBitmap(bitmap, MAX_DIMENSION)
